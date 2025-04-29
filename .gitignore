@@ -1,0 +1,23 @@
+## Python virtual environment and cache
+venv/
+__pycache__/
+*.py[cod]
+
+## R environment cache
+renv/library/
+renv/python/
+*.Rhistory
+
+## Project output directories
+fasta/
+filtered/
+consensus/
+aligned/
+final/
+damage_results/
+logs/
+plots/
+
+## System files
+.DS_Store
+Thumbs.db

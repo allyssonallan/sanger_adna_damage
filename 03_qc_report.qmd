@@ -1,0 +1,92 @@
+---
+title: "AB1 Sequencing QC Report"
+format:
+  html:
+    toc: true
+    toc-location: left
+    code-fold: true
+jupyter:
+  kernelspec:
+    name: ab1-qc
+    display_name: "AB1 QC"
+    language: python
+execute:
+  echo: false
+  warning: false
+  error: false
+  message: false
+---
+
+# Overview
+
+This report summarizes the quality and processing of the Sanger sequencing files, including Phred filtering, alignment, consensus calling, and merging of HVSI and HVSII.
+
+# Setup
+
+```{python}
+import pandas as pd
+from pathlib import Path
+from Bio import SeqIO
+import matplotlib.pyplot as plt
+from IPython.display import Image, display
+
+# Build summary table
+records = []
+for fasta in Path("filtered").glob("*_filtered.fasta"):
+    sample = fasta.stem.replace("-F_filtered", "").replace("-R_filtered", "")
+    raw_fasta = Path("fasta") / fasta.name.replace("_filtered", "")
+    raw = SeqIO.read(raw_fasta, "fasta")
+    filt = SeqIO.read(fasta, "fasta")
+    final_fasta = Path("consensus") / f"{sample}_consensus.fasta"
+    if final_fasta.exists():
+        cons = SeqIO.read(final_fasta, "fasta")
+        n_content = str(cons.seq).upper().count("N") / len(cons.seq) * 100
+        status = "Good" if n_content < 10 else "Review"
+        records.append({
+            "Sample": sample,
+            "Raw_Length": len(raw.seq),
+            "Filtered_Length": len(filt.seq),
+            "Consensus_Length": len(cons.seq),
+            "%N_in_Consensus": round(n_content,2),
+            "Status": status
+        })
+
+df = pd.DataFrame(records).drop_duplicates(subset=["Sample"]).sort_values("Sample")
+```
+
+# Summary Table
+
+```{python}
+# Display the summary table
+df
+```
+
+# Quality Classification
+
+```{python}
+status_counts = df["Status"].value_counts()
+
+fig, ax = plt.subplots(figsize=(6,4))
+status_counts.plot(kind="bar", ax=ax, color=["#1f77b4", "#ff7f0e"])
+ax.set_ylabel("Number of Samples")
+ax.set_title("Sample Quality Classification")
+ax.grid(axis="y", linestyle="--", alpha=0.7)
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.savefig("plots/quality_classification.png")
+plt.show()
+```
+
+# Quality Plots per Sample
+
+```{python}
+# Display quality plots for each sample
+for img in sorted(Path("plots").glob("*_quality.png")):
+    display(Image(str(img)))
+```
+
+# Notes
+
+- Bases below the red line in the quality plots have Phred scores < 20 and were replaced by "N".
+- Final consensus sequences were built based on aligned forward and reverse reads.
+- Samples with >10% "N" in the final sequence are flagged for potential resequencing.
