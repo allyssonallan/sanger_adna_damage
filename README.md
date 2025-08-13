@@ -32,6 +32,7 @@ quarto render 03_qc_report.qmd         # Create QC report
 📖 **[Complete Documentation](docs/)** - Comprehensive guides, tutorials, and API reference
 
 **Quick Links:**
+
 - [Installation Guide](docs/installation.html) - Detailed setup instructions
 - [Usage Tutorial](docs/usage.html) - Step-by-step workflow guide  
 - [Configuration](docs/configuration.html) - Customization options
