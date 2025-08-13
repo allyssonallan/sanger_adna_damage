@@ -1,5 +1,5 @@
 #!/bin/bash
-# Documentation build and test script
+# Documentation build and deployment script for GitHub Pages
 
 set -e  # Exit on any error
 
@@ -11,6 +11,15 @@ if [ ! -f "source/conf.py" ]; then
     echo "❌ Error: Must be run from the docs/ directory"
     echo "Usage: cd docs && ./build_docs.sh"
     exit 1
+fi
+
+# Activate virtual environment if it exists
+if [ -d "../venv" ]; then
+    echo "🐍 Activating virtual environment..."
+    source ../venv/bin/activate
+    echo "✅ Virtual environment activated"
+else
+    echo "⚠️  No virtual environment found, using system Python"
 fi
 
 # Check for required dependencies
@@ -27,7 +36,7 @@ check_dependency() {
 }
 
 check_dependency "sphinx"
-check_dependency "sphinx_rtd_theme"
+check_dependency "furo"
 
 # Optional dependencies
 if python -c "import myst_parser" 2>/dev/null; then
@@ -151,6 +160,27 @@ echo "   cd _build/html && python -m http.server 8000"
 echo "   Then open: http://localhost:8000"
 echo ""
 
+# Deploy to GitHub Pages directory
+echo "📄 Deploying to GitHub Pages..."
+if [ -d "../gh-pages" ]; then
+    echo "🗑️  Cleaning existing gh-pages directory..."
+    rm -rf ../gh-pages/*
+else
+    echo "📁 Creating gh-pages directory..."
+    mkdir -p ../gh-pages
+fi
+
+echo "📋 Copying built documentation to gh-pages..."
+cp -r _build/html/* ../gh-pages/
+
+echo "✅ Documentation deployed to gh-pages/ directory"
+echo "💡 To publish on GitHub:"
+echo "   1. Commit and push the gh-pages/ directory"
+echo "   2. Go to GitHub → Settings → Pages"
+echo "   3. Select 'Deploy from a branch'"
+echo "   4. Choose 'main' branch and '/gh-pages' folder"
+echo ""
+
 # Optional: Open in browser (macOS/Linux)
 if command -v open >/dev/null 2>&1; then
     read -p "🌐 Open documentation in browser? [y/N]: " -n 1 -r
@@ -166,4 +196,4 @@ elif command -v xdg-open >/dev/null 2>&1; then
     fi
 fi
 
-echo "✨ Build script completed!"
+echo "✨ Build and deployment script completed!"

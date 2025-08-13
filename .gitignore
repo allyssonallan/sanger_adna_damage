@@ -74,8 +74,11 @@ coverage.xml
 *.cover
 .hypothesis/
 
-# Documentation builds
+# Documentation builds (ignore build artifacts but allow GitHub Pages)
 docs/_build/
+
+# GitHub Pages deployment (allow this to be committed)
+# gh-pages/
 
 # Generated reports
 *.html
