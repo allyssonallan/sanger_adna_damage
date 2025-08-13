@@ -1,0 +1,54 @@
+# Configuration for Sanger DNA Damage Analysis Pipeline
+
+# Quality control settings
+quality:
+  min_phred_score: 20
+  terminal_length: 10
+
+# Alignment settings
+alignment:
+  tool: "mafft"
+  parameters: "--auto"
+  
+# Bootstrap analysis settings
+bootstrap:
+  iterations: 10000
+
+# Ancient DNA damage analysis settings
+damage:
+  ct_threshold: 0.05      # C→T transition significance threshold
+  ga_threshold: 0.05      # G→A transition significance threshold
+  damage_threshold: 0.5   # Threshold for damage pattern classification
+  confidence_level: 0.95  # Confidence level for bootstrap intervals
+
+# Output directory structure
+output:
+  directories:
+    fasta: "fasta"
+    filtered: "filtered"
+    consensus: "consensus"
+    plots: "plots"
+    aligned: "aligned"
+    final: "final"
+    logs: "logs"
+
+# Plotting settings
+plotting:
+  figure_size: [12, 4]
+  dpi: 300
+  quality_threshold_color: "red"
+  quality_threshold_style: "--"
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+# File patterns
+patterns:
+  ab1_files: "*.ab1"
+  hvs_pattern: "*HVS*-[FR].ab1"  # Updated for HVS region files
+  forward_pattern: "*-F_filtered.fasta"
+  reverse_pattern: "*-R_filtered.fasta"
+  consensus_pattern: "*_consensus.fasta"
+  merged_pattern: "*_merged.fasta"

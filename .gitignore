@@ -1,23 +1,121 @@
-## Python virtual environment and cache
-venv/
+# Python
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-## R environment cache
-renv/library/
-renv/python/
-*.Rhistory
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+.env
+.envrc
 
-## Project output directories
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.atom/
+.sublime-project
+.sublime-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Output directories (keep structure but ignore contents)
 fasta/
+input/
+output/
 filtered/
 consensus/
 aligned/
 final/
-damage_results/
-logs/
 plots/
+logs/
+damage_results/
 
-## System files
+# Keep directory structure but ignore contents
+!fasta/.gitkeep
+!filtered/.gitkeep
+!consensus/.gitkeep
+!aligned/.gitkeep
+!final/.gitkeep
+!plots/.gitkeep
+!logs/.gitkeep
+
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Documentation builds
+docs/_build/
+
+# Generated reports
+*.html
+!reports/qc_report_template.qmd
+
+# Data files (keep examples, ignore large datasets)
+*.ab1
+*.fasta
+*.fastq
+*.sam
+*.bam
+*.vcf
+*.bed
+*.gff
+*.gtf
+
+# OS
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+.cache/
+
+# Package manager files
+package-lock.json
+yarn.lock
+Pipfile.lock
+
+# Security
+*.pem
+*.key
+*.crt
+config.ini
+secrets.txt
+
+# Large files
+*.zip
+*.tar.gz
+*.tar.bz2
