@@ -35,11 +35,19 @@ pip install -r requirements.txt
 ### Basic Usage
 
 ```bash
-# Process your AB1 files in 4 simple steps
-./00_process_ab1.sh                    # Process AB1 files
-python 01_convert_ab1_quality.py       # Convert to FASTQ
-python 02_make_consensus.py            # Generate consensus
-quarto render 03_qc_report.qmd         # Create QC report
+# Run the complete pipeline
+python -m src.sanger_pipeline.cli.main run-pipeline \
+    --input-dir ./input \
+    --output-dir ./output
+
+# Convert single AB1 file
+python -m src.sanger_pipeline.cli.main convert-ab1 \
+    sample.ab1 output.fasta \
+    --min-quality 20 \
+    --min-sequence-length 30
+
+# Generate QC report
+python generate_report.py
 ```
 
 ## 📚 Documentation
@@ -67,8 +75,21 @@ quarto render 03_qc_report.qmd         # Create QC report
 
 ```bash
 # Development setup
+git clone https://github.com/yourusername/sanger_adna_damage.git
+cd sanger_adna_damage
+
+# Set up virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
-Rscript renv_manager.R
+
+# Run tests
+python -m pytest tests/
+
+# Generate documentation
+cd docs && python -m sphinx.cmd.build source _build
 ```
 
 See the [Contributing Guide](https://allysson.dev.br/sanger_adna_damage/contributing.html) for development workflows.
