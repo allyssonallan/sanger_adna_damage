@@ -2,7 +2,7 @@
 
 # Quality control settings
 quality:
-  min_phred_score: 20
+  min_phred_score: 15
   terminal_length: 10
 
 # Alignment settings
@@ -18,7 +18,7 @@ bootstrap:
 damage:
   ct_threshold: 0.05      # C→T transition significance threshold
   ga_threshold: 0.05      # G→A transition significance threshold
-  damage_threshold: 0.5   # Threshold for damage pattern classification
+  damage_threshold: 0.05   # Threshold for damage pattern classification
   confidence_level: 0.95  # Confidence level for bootstrap intervals
 
 # Output directory structure
