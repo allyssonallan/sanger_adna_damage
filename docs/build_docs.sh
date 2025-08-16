@@ -173,6 +173,9 @@ fi
 echo "📋 Copying built documentation to gh-pages..."
 cp -r _build/html/* ../gh-pages/
 
+echo "🌐 Adding CNAME file for custom domain..."
+echo "allysson.dev.br" > ../gh-pages/CNAME
+
 echo "✅ Documentation deployed to gh-pages/ directory"
 echo "💡 To publish on GitHub:"
 echo "   1. Commit and push the gh-pages/ directory"

@@ -29,16 +29,16 @@ quarto render 03_qc_report.qmd         # Create QC report
 
 ## 📚 Documentation
 
-📖 **[Complete Documentation](https://allyssonallan.github.io/sanger_adna_damage/)** - Comprehensive guides, tutorials, and API reference
+📖 **[Complete Documentation](https://allysson.dev.br/sanger_adna_damage/)** - Comprehensive guides, tutorials, and API reference
 
 **Quick Links:**
 
-- [Installation Guide](https://allyssonallan.github.io/sanger_adna_damage/installation.html) - Detailed setup instructions
-- [Usage Tutorial](https://allyssonallan.github.io/sanger_adna_damage/quickstart.html) - Step-by-step workflow guide  
-- [Configuration](https://allyssonallan.github.io/sanger_adna_damage/configuration.html) - Customization options
-- [API Reference](https://allyssonallan.github.io/sanger_adna_damage/api/) - Function and parameter documentation
-- [Examples](https://allyssonallan.github.io/sanger_adna_damage/tutorials/) - Real-world use cases
-- [Troubleshooting](https://allyssonallan.github.io/sanger_adna_damage/troubleshooting.html) - Common issues and solutions
+- [Installation Guide](https://allysson.dev.br/sanger_adna_damage/installation.html) - Detailed setup instructions
+- [Usage Tutorial](https://allysson.dev.br/sanger_adna_damage/quickstart.html) - Step-by-step workflow guide  
+- [Configuration](https://allysson.dev.br/sanger_adna_damage/configuration.html) - Customization options
+- [API Reference](https://allysson.dev.br/sanger_adna_damage/api/) - Function and parameter documentation
+- [Examples](https://allysson.dev.br/sanger_adna_damage/tutorials/) - Real-world use cases
+- [Troubleshooting](https://allysson.dev.br/sanger_adna_damage/troubleshooting.html) - Common issues and solutions
 
 ## ✨ Key Features
 
@@ -56,7 +56,7 @@ pip install -r requirements.txt
 Rscript renv_manager.R
 ```
 
-See the [Contributing Guide](https://allyssonallan.github.io/sanger_adna_damage/contributing.html) for development workflows.
+See the [Contributing Guide](https://allysson.dev.br/sanger_adna_damage/contributing.html) for development workflows.
 
 ## 📝 License
 
@@ -64,6 +64,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🆘 Support
 
-- 📖 [Documentation](https://allyssonallan.github.io/sanger_adna_damage/) - Complete guides and references
+- 📖 [Documentation](https://allysson.dev.br/sanger_adna_damage/) - Complete guides and references
 - 🐛 [Issues](https://github.com/yourusername/sanger_adna_damage/issues) - Bug reports and feature requests
 - 💬 [Discussions](https://github.com/yourusername/sanger_adna_damage/discussions) - Questions and community
