@@ -37,12 +37,13 @@ check_dependency() {
 
 check_dependency "sphinx"
 check_dependency "furo"
+check_dependency "myst_parser"
 
 # Optional dependencies
-if python -c "import myst_parser" 2>/dev/null; then
-    echo "✅ myst_parser available (optional)"
+if python -c "import sphinx_copybutton" 2>/dev/null; then
+    echo "✅ sphinx_copybutton available (optional)"
 else
-    echo "⚠️  myst_parser not available (optional for Markdown support)"
+    echo "⚠️  sphinx_copybutton not available (optional for copy buttons)"
 fi
 
 echo ""
