@@ -4,7 +4,7 @@ Ancient DNA damage analysis module for detecting C->T deamination patterns.
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, TypedDict
 import numpy as np
 import matplotlib.pyplot as plt
 from Bio import SeqIO
@@ -14,6 +14,24 @@ from ..utils.helpers import validate_file_exists
 
 
 logger = logging.getLogger(__name__)
+
+
+class SequenceQuality(TypedDict):
+    n_percentage: float
+    valid_percentage: float
+
+
+class DamageAnalysisResult(TypedDict):
+    damage_5_prime: float
+    damage_3_prime: float
+    total_bases: int
+    valid_bases: int
+    n_content: int
+    ambiguous_content: int
+    sequence_quality: SequenceQuality
+    total_ct_transitions: int
+    total_ga_transitions: int
+    overall_damage_rate: float
 
 
 class ADNADamageAnalyzer:
@@ -34,7 +52,7 @@ class ADNADamageAnalyzer:
 
     def analyze_sequence_damage(
         self, sequence_file: Path, reference_file: Path
-    ) -> Dict[str, float]:
+    ) -> DamageAnalysisResult:
         """
         Analyze damage patterns in a sequence against reference.
 
@@ -97,7 +115,7 @@ class ADNADamageAnalyzer:
 
     def _calculate_damage_statistics(
         self, alignment: Tuple[str, str]
-    ) -> Dict[str, float]:
+    ) -> DamageAnalysisResult:
         """
         Calculate damage statistics from alignment.
 

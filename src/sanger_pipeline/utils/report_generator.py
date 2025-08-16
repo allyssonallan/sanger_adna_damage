@@ -2,7 +2,8 @@
 Comprehensive QC Report Generator for Sanger Pipeline.
 
 This module generates beautiful HTML reports with analysis summaries,
-interactive tabs, and damage analysis integration.
+interactive tabs, damage analysis integration, and comprehensive
+damage visualization plots.
 """
 
 import json
@@ -11,6 +12,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any
 import pandas as pd
+
+# Import our new damage plotting utilities
+from .damage_plots import DamagePlotGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +32,9 @@ class QCReportGenerator:
         self.output_dir = Path(output_dir)
         self.report_dir = self.output_dir / "reports"
         self.report_dir.mkdir(exist_ok=True)
+        
+        # Initialize damage plot generator
+        self.damage_plotter = DamagePlotGenerator(output_dir)
         
         # Define color palette
         self.colors = {
@@ -48,7 +55,9 @@ class QCReportGenerator:
             'samples': {},
             'damage_analysis': {},
             'hvs_combinations': {},
-            'quality_metrics': {}
+            'quality_metrics': {},
+            'dashboard_data': {},
+            'damage_plots': []
         }
         
         # Analyze each output directory
@@ -71,6 +80,27 @@ class QCReportGenerator:
         
         # Collect sample-level statistics
         stats['samples'] = self._collect_sample_statistics()
+        
+        # Generate comprehensive dashboard data
+        # Generate dashboard data
+        stats['dashboard_data'] = self.damage_plotter.get_dashboard_data(str(self.output_dir))
+        
+        # Generate damage data summary
+        dashboard_data = stats['dashboard_data']
+        if dashboard_data.get('has_data'):
+            samples = dashboard_data.get('samples', [])
+            stats['damage_data'] = {
+                'files_analyzed': len(samples),
+                'summary': dashboard_data.get('summary', {})
+            }
+        else:
+            stats['damage_data'] = {'files_analyzed': 0, 'summary': {}}
+        
+        # Generate damage plots for embedding in report
+        stats['damage_plots'] = self.damage_plotter.generate_comprehensive_damage_plots()
+        
+        # Generate individual sample plots
+        stats['individual_sample_plots'] = self.damage_plotter.generate_individual_sample_plots(str(self.output_dir))
         
         return stats
     
@@ -382,6 +412,11 @@ class QCReportGenerator:
                 </button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link" id="sample-details-tab" data-bs-toggle="tab" data-bs-target="#sample-details" type="button" role="tab">
+                    <i class="fas fa-table"></i> Sample Details
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link" id="hvs-tab" data-bs-toggle="tab" data-bs-target="#hvs" type="button" role="tab">
                     <i class="fas fa-project-diagram"></i> HVS Regions
                 </button>
@@ -393,6 +428,7 @@ class QCReportGenerator:
             {self._generate_directories_tab(stats)}
             {self._generate_samples_tab(stats)}
             {self._generate_damage_tab(stats)}
+            {self._generate_sample_details_tab(stats)}
             {self._generate_hvs_tab(stats)}
         </div>
     </div>
@@ -562,10 +598,16 @@ class QCReportGenerator:
         """
     
     def _generate_damage_tab(self, stats: Dict[str, Any]) -> str:
-        """Generate the damage analysis tab content."""
+        """Generate the enhanced damage analysis tab content with plots and comprehensive data."""
         damage_data = stats['damage_analysis']
+        dashboard_data = stats['dashboard_data']
+        damage_plots = stats['damage_plots']
         
-        if not damage_data.get('files_analyzed', 0):
+        # Check if we have damage data and dashboard data
+        damage_data = stats.get('damage_data', {})
+        dashboard_data = stats.get('dashboard_data', {'has_data': False, 'summary': {}, 'samples': []})
+        
+        if not damage_data.get('files_analyzed', 0) and not dashboard_data.get('has_data', False):
             return """
             <div class="tab-pane fade" id="damage" role="tabpanel">
                 <h4><i class="fas fa-radiation"></i> aDNA Damage Analysis</h4>
@@ -575,71 +617,528 @@ class QCReportGenerator:
             </div>
             """
         
-        summary = damage_data.get('summary', {})
-        individual_results = damage_data.get('individual_results', [])
+        # Get pre-computed dashboard data from stats
+        dashboard_data = stats.get('dashboard_data', {'has_data': False, 'summary': {}, 'samples': []})
+        dashboard_samples = dashboard_data.get('samples', [])
         
-        individual_html = ""
-        for result in individual_results[:10]:  # Show top 10
-            damage_color = "success" if result['overall_damage_rate'] > 0.1 else "warning"
-            individual_html += f"""
-            <tr>
-                <td>{result['sample']}</td>
-                <td>{result['damage_5_prime']:.3f}</td>
-                <td>{result['damage_3_prime']:.3f}</td>
-                <td><span class="badge bg-{damage_color}">{result['overall_damage_rate']:.3f}</span></td>
-                <td>{result['valid_percentage']:.1f}%</td>
-            </tr>
+        # Calculate summary statistics from samples
+        total_samples = len(dashboard_samples)
+        samples_with_damage = sum(1 for s in dashboard_samples if s.get('damage_status') == 'ANCIENT_DNA_CONFIRMED')
+        samples_partial_damage = sum(1 for s in dashboard_samples if s.get('damage_status') == 'PARTIAL_DAMAGE_SIGNATURE')
+        samples_no_damage = sum(1 for s in dashboard_samples if s.get('damage_status') == 'NO_DAMAGE_DETECTED')
+        damage_indication_rate = ((samples_with_damage + samples_partial_damage) / total_samples * 100) if total_samples > 0 else 0
+        high_quality_samples = sum(1 for s in dashboard_samples if (s.get('valid_bases', 0) / s.get('total_bases', 1) * 100) >= 80)
+        
+        # Generate summary statistics section
+        summary_html = f"""
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <div class="stat-card text-center">
+                    <div class="stat-number text-primary">{total_samples}</div>
+                    <div class="text-muted">Total Samples</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card text-center">
+                    <div class="stat-number text-success">{samples_with_damage}</div>
+                    <div class="text-muted">High Damage</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card text-center">
+                    <div class="stat-number text-warning">{samples_partial_damage}</div>
+                    <div class="text-muted">Partial Damage</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card text-center">
+                    <div class="stat-number text-secondary">{samples_no_damage}</div>
+                    <div class="text-muted">No Damage</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card text-center">
+                    <div class="stat-number text-info">{damage_indication_rate:.1f}%</div>
+                    <div class="text-muted">Damage Rate</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card text-center">
+                    <div class="stat-number text-dark">{high_quality_samples}</div>
+                    <div class="text-muted">High Quality</div>
+                </div>
+            </div>
+        </div>
+        """
+        
+        # Generate comprehensive sample table
+        sample_table_html = ""
+        if dashboard_samples:
+            sample_table_html = """
+            <div class="table-responsive mb-4">
+                <table class="table table-striped table-hover" id="damageTable">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Sample</th>
+                            <th>Total Bases</th>
+                            <th>Valid Bases</th>
+                            <th>N Content</th>
+                            <th>Valid %</th>
+                            <th>5' Damage</th>
+                            <th>3' Damage</th>
+                            <th>Overall Damage</th>
+                            <th>Status</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            """
+            
+            for sample in dashboard_samples:
+                # Color coding for status
+                status_colors = {
+                    'ANCIENT_DNA_CONFIRMED': 'success',
+                    'PARTIAL_DAMAGE_SIGNATURE': 'warning',
+                    'NO_DAMAGE_DETECTED': 'secondary',
+                    'INSUFFICIENT_DATA': 'danger'
+                }
+                # Use correct field name from dashboard data
+                sample_status = sample.get('damage_status', 'UNKNOWN')
+                status_color = status_colors.get(sample_status, 'info')
+                
+                # Calculate quality tier based on valid percentage
+                total_bases = sample.get('total_bases', 0)
+                valid_bases = sample.get('valid_bases', 0)
+                valid_percentage = (valid_bases / total_bases * 100) if total_bases > 0 else 0
+                
+                if valid_percentage >= 80:
+                    sample_quality = 'excellent'
+                elif valid_percentage >= 60:
+                    sample_quality = 'good'
+                elif valid_percentage >= 40:
+                    sample_quality = 'fair'
+                else:
+                    sample_quality = 'poor'
+                
+                # Quality tier badge
+                quality_colors = {
+                    'excellent': 'success',
+                    'good': 'info',
+                    'fair': 'warning',
+                    'poor': 'danger'
+                }
+                quality_color = quality_colors.get(sample_quality, 'secondary')
+                
+                # Format status for display
+                status_display = sample_status.replace('_', ' ').title()
+                
+                sample_table_html += f"""
+                <tr>
+                    <td><strong>{sample['sample_id']}</strong></td>
+                    <td>{sample['total_bases']:,}</td>
+                    <td>{sample['valid_bases']:,}</td>
+                    <td>{sample['n_content']:,}</td>
+                    <td><span class="badge bg-{quality_color}">{valid_percentage:.1f}%</span></td>
+                    <td>{sample['damage_5_prime']:.4f}</td>
+                    <td>{sample['damage_3_prime']:.4f}</td>
+                    <td>{sample['overall_damage_rate']:.4f}</td>
+                    <td><span class="badge bg-{status_color}">{status_display}</span></td>
+                    <td><small>{sample['interpretation'][:100]}...</small></td>
+                </tr>
+                """
+            
+            sample_table_html += """
+                    </tbody>
+                </table>
+            </div>
+            """
+        
+        # Generate damage plots section
+        plots_html = ""
+        if damage_plots:
+            plots_html = """
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5><i class="fas fa-chart-line"></i> Damage Analysis Visualizations</h5>
+                    <div class="row">
+            """
+            
+            plot_titles = [
+                "Damage Rate Distributions",
+                "5' vs 3' Damage Correlation", 
+                "Status Summary & Quality Analysis",
+                "Comprehensive Quality-Damage Analysis"
+            ]
+            
+            for i, (plot_data, title) in enumerate(zip(damage_plots, plot_titles)):
+                plots_html += f"""
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">{title}</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <img src="data:image/png;base64,{plot_data}" 
+                                     class="img-fluid" alt="{title}" style="max-height: 400px;">
+                            </div>
+                        </div>
+                    </div>
+                """
+                
+                # Break into rows of 2
+                if (i + 1) % 2 == 0 and i < len(damage_plots) - 1:
+                    plots_html += """
+                    </div>
+                    <div class="row">
+                    """
+            
+            plots_html += """
+                    </div>
+                </div>
+            </div>
             """
         
         return f"""
         <div class="tab-pane fade" id="damage" role="tabpanel">
             <h4><i class="fas fa-radiation"></i> aDNA Damage Analysis</h4>
             
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <div class="stat-number">{summary.get('mean_damage_5_prime', 0):.3f}</div>
-                        <div class="text-muted">Mean 5' Damage</div>
-                    </div>
+            <!-- Important Disclaimer -->
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Important:</strong> This tool provides damage pattern screening for ancient DNA research. 
+                Results should be validated with additional methods for definitive authentication.
+            </div>
+            
+            {summary_html}
+            
+            {plots_html}
+            
+            <h5><i class="fas fa-table"></i> Detailed Sample Analysis</h5>
+            {sample_table_html}
+        </div>
+        """
+    
+    def _generate_sample_details_tab(self, stats):
+        """Generate comprehensive sample details tab with enhanced sample information"""
+        # Get dashboard data from pre-computed stats
+        dashboard_data = stats.get('dashboard_data', {'has_data': False, 'summary': {}, 'samples': []})
+        
+        if not dashboard_data.get('has_data', False):
+            return """
+            <div class="tab-pane fade" id="sample-details" role="tabpanel">
+                <h4><i class="fas fa-table"></i> Sample Details</h4>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No sample data available for detailed analysis.
                 </div>
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <div class="stat-number">{summary.get('mean_damage_3_prime', 0):.3f}</div>
-                        <div class="text-muted">Mean 3' Damage</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <div class="stat-number">{summary.get('samples_with_damage', 0)}</div>
-                        <div class="text-muted">Samples with Damage</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <div class="stat-number">{summary.get('high_quality_samples', 0)}</div>
-                        <div class="text-muted">High Quality Samples</div>
+            </div>
+            """
+        
+        # Get dashboard sample data
+        dashboard_samples = dashboard_data.get('samples', [])
+        individual_plots = stats.get('individual_sample_plots', {})
+        
+        # Create summary statistics cards
+        total_samples = len(dashboard_samples)
+        total_bases = sum(sample.get('total_bases', 0) for sample in dashboard_samples)
+        total_valid_bases = sum(sample.get('valid_bases', 0) for sample in dashboard_samples)
+        total_n_content = sum(sample.get('n_content', 0) for sample in dashboard_samples)
+        
+        # Count samples by status
+        status_counts = {}
+        for sample in dashboard_samples:
+            status = sample.get('damage_status', 'UNKNOWN')
+            status_counts[status] = status_counts.get(status, 0) + 1
+        
+        # Generate summary cards HTML
+        summary_cards_html = f"""
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-flask"></i> Total Samples</h5>
+                        <h2 class="card-text">{total_samples:,}</h2>
                     </div>
                 </div>
             </div>
-            
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead class="table-primary">
-                        <tr>
-                            <th>Sample</th>
-                            <th>5' Damage</th>
-                            <th>3' Damage</th>
-                            <th>Overall Damage</th>
-                            <th>Valid %</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {individual_html}
-                    </tbody>
-                </table>
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-dna"></i> Total Bases</h5>
+                        <h2 class="card-text">{total_bases:,}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-check-circle"></i> Valid Bases</h5>
+                        <h2 class="card-text">{total_valid_bases:,}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-question-circle"></i> N Content</h5>
+                        <h2 class="card-text">{total_n_content:,}</h2>
+                    </div>
+                </div>
             </div>
         </div>
         """
+        
+        # Generate status distribution cards
+        status_cards_html = ""
+        if status_counts:
+            status_cards_html = '<div class="row mb-4">'
+            for status, count in status_counts.items():
+                badge_class = {
+                    'ANCIENT_DNA_CONFIRMED': 'bg-success',
+                    'PARTIAL_DAMAGE_SIGNATURE': 'bg-warning', 
+                    'NO_DAMAGE_DETECTED': 'bg-danger',
+                    'INSUFFICIENT_DATA': 'bg-secondary',
+                    'UNKNOWN': 'bg-secondary'
+                }.get(status, 'bg-secondary')
+                
+                percentage = (count / total_samples * 100) if total_samples > 0 else 0
+                
+                status_cards_html += f"""
+                <div class="col-md-6 col-lg-3">
+                    <div class="card {badge_class} text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">{status.replace('_', ' ').title()}</h6>
+                            <h3 class="card-text">{count} <small>({percentage:.1f}%)</small></h3>
+                        </div>
+                    </div>
+                </div>
+                """
+            status_cards_html += '</div>'
+        
+        # Generate comprehensive sample table with ALL JSON data
+        sample_table_html = """
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-table"></i> Comprehensive Sample Analysis (All Samples)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-sm">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Sample ID</th>
+                                <th>Total Bases</th>
+                                <th>Valid Bases</th>
+                                <th>N Content</th>
+                                <th>Valid %</th>
+                                <th>N %</th>
+                                <th>5' Damage</th>
+                                <th>3' Damage</th>
+                                <th>Overall Damage Rate</th>
+                                <th>CT Transitions</th>
+                                <th>GA Transitions</th>
+                                <th>P-value 5'</th>
+                                <th>P-value 3'</th>
+                                <th>Bootstrap Mean 5'</th>
+                                <th>Bootstrap Mean 3'</th>
+                                <th>5' Indicated</th>
+                                <th>3' Indicated</th>
+                                <th>Status</th>
+                                <th>Quality</th>
+                                <th>Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        """
+        
+        for sample in dashboard_samples:
+            sample_id = sample.get('sample_id', 'Unknown')
+            total_bases = sample.get('total_bases', 0)
+            valid_bases = sample.get('valid_bases', 0)
+            n_content = sample.get('n_content', 0)
+            damage_5_prime = sample.get('damage_5_prime', 0)
+            damage_3_prime = sample.get('damage_3_prime', 0)
+            overall_damage_rate = sample.get('overall_damage_rate', 0)
+            ct_transitions = sample.get('total_ct_transitions', 0)
+            ga_transitions = sample.get('total_ga_transitions', 0)
+            p_value_5 = sample.get('p_value_5_prime', 0)
+            p_value_3 = sample.get('p_value_3_prime', 0)
+            bootstrap_mean_5 = sample.get('bootstrap_mean_5_prime', 0)
+            bootstrap_mean_3 = sample.get('bootstrap_mean_3_prime', 0)
+            damage_5_indicated = sample.get('5_prime_damage_indicated', False)
+            damage_3_indicated = sample.get('3_prime_damage_indicated', False)
+            damage_status = sample.get('damage_status', 'UNKNOWN')
+            interpretation = sample.get('interpretation', 'No interpretation available')
+            
+            # Calculate percentages
+            valid_percent = (valid_bases / total_bases * 100) if total_bases > 0 else 0
+            n_percent = (n_content / total_bases * 100) if total_bases > 0 else 0
+            
+            # Determine quality tier
+            if valid_percent >= 80:
+                quality_tier = "HIGH"
+                quality_class = "badge bg-success"
+            elif valid_percent >= 50:
+                quality_tier = "MEDIUM"
+                quality_class = "badge bg-warning"
+            else:
+                quality_tier = "LOW"
+                quality_class = "badge bg-danger"
+            
+            # Status badge styling
+            status_class = {
+                'ANCIENT_DNA_CONFIRMED': 'badge bg-success',
+                'PARTIAL_DAMAGE_SIGNATURE': 'badge bg-warning',
+                'NO_DAMAGE_DETECTED': 'badge bg-danger',
+                'INSUFFICIENT_DATA': 'badge bg-secondary',
+                'UNKNOWN': 'badge bg-secondary'
+            }.get(damage_status, 'badge bg-secondary')
+            
+            # Damage indication badges
+            damage_5_badge = '<span class="badge bg-success">Yes</span>' if damage_5_indicated else '<span class="badge bg-secondary">No</span>'
+            damage_3_badge = '<span class="badge bg-success">Yes</span>' if damage_3_indicated else '<span class="badge bg-secondary">No</span>'
+            
+            sample_table_html += f"""
+            <tr>
+                <td><strong>{sample_id}</strong></td>
+                <td>{total_bases:,}</td>
+                <td>{valid_bases:,}</td>
+                <td>{n_content:,}</td>
+                <td>{valid_percent:.1f}%</td>
+                <td>{n_percent:.1f}%</td>
+                <td>{damage_5_prime:.3f}</td>
+                <td>{damage_3_prime:.3f}</td>
+                <td>{overall_damage_rate:.3f}</td>
+                <td>{ct_transitions}</td>
+                <td>{ga_transitions}</td>
+                <td>{p_value_5:.3f}</td>
+                <td>{p_value_3:.3f}</td>
+                <td>{bootstrap_mean_5:.3f}</td>
+                <td>{bootstrap_mean_3:.3f}</td>
+                <td>{damage_5_badge}</td>
+                <td>{damage_3_badge}</td>
+                <td><span class="{status_class}">{damage_status.replace('_', ' ')}</span></td>
+                <td><span class="{quality_class}">{quality_tier}</span></td>
+                <td><small class="text-muted">{interpretation[:150]}{'...' if len(interpretation) > 150 else ''}</small></td>
+            </tr>
+            """
+        
+        sample_table_html += """
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        """
+        
+        # Generate individual sample plots section
+        individual_plots_html = ""
+        if individual_plots:
+            individual_plots_html = """
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> Individual Sample Analysis Plots</h5>
+                    <p class="text-muted mb-0">Click on any sample to view its detailed damage analysis plot</p>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="samplePlotsAccordion">
+            """
+            
+            for i, sample in enumerate(dashboard_samples):  # Show ALL samples
+                sample_id = sample.get('sample_id', 'Unknown')
+                if sample_id in individual_plots:
+                    plot_data = individual_plots[sample_id]
+                    
+                    # Create status badge
+                    status = sample.get('damage_status', 'UNKNOWN')
+                    status_class = {
+                        'ANCIENT_DNA_CONFIRMED': 'badge bg-success',
+                        'PARTIAL_DAMAGE_SIGNATURE': 'badge bg-warning',
+                        'NO_DAMAGE_DETECTED': 'badge bg-danger',
+                        'INSUFFICIENT_DATA': 'badge bg-secondary',
+                        'UNKNOWN': 'badge bg-secondary'
+                    }.get(status, 'badge bg-secondary')
+                    
+                    # Additional data for display
+                    damage_5 = sample.get('damage_5_prime', 0)
+                    damage_3 = sample.get('damage_3_prime', 0)
+                    ct_transitions = sample.get('total_ct_transitions', 0)
+                    ga_transitions = sample.get('total_ga_transitions', 0)
+                    
+                    individual_plots_html += f"""
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{i}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#collapse{i}" aria-expanded="false" aria-controls="collapse{i}">
+                                    <strong>{sample_id}</strong> 
+                                    <span class="{status_class} ms-2">{status.replace('_', ' ')}</span>
+                                    <small class="text-muted ms-2">
+                                        ({sample.get('total_bases', 0):,} bases, {sample.get('valid_bases', 0):,} valid)
+                                        - 5':{"%.3f" % damage_5}, 3':{"%.3f" % damage_3} - CT:{ct_transitions}, GA:{ga_transitions}
+                                    </small>
+                                </button>
+                            </h2>
+                            <div id="collapse{i}" class="accordion-collapse collapse" 
+                                 aria-labelledby="heading{i}" data-bs-parent="#samplePlotsAccordion">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="text-center">
+                                                <img src="data:image/png;base64,{plot_data}" class="img-fluid" 
+                                                     alt="Sample {sample_id} Analysis" style="max-width: 100%; height: auto;">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h6>Detailed Metrics:</h6>
+                                            <ul class="list-unstyled small">
+                                                <li><strong>5' Damage:</strong> {damage_5:.3f}</li>
+                                                <li><strong>3' Damage:</strong> {damage_3:.3f}</li>
+                                                <li><strong>Overall Damage Rate:</strong> {sample.get('overall_damage_rate', 0):.3f}</li>
+                                                <li><strong>CT Transitions:</strong> {ct_transitions}</li>
+                                                <li><strong>GA Transitions:</strong> {ga_transitions}</li>
+                                                <li><strong>P-value 5':</strong> {sample.get('p_value_5_prime', 0):.3f}</li>
+                                                <li><strong>P-value 3':</strong> {sample.get('p_value_3_prime', 0):.3f}</li>
+                                                <li><strong>5' Indicated:</strong> {'Yes' if sample.get('5_prime_damage_indicated') else 'No'}</li>
+                                                <li><strong>3' Indicated:</strong> {'Yes' if sample.get('3_prime_damage_indicated') else 'No'}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <small class="text-muted">
+                                            <strong>Interpretation:</strong> {sample.get('interpretation', 'No interpretation available')}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    """
+            
+            individual_plots_html += """
+                    </div>
+                </div>
+            </div>
+            """
+        
+        return f"""
+        <div class="tab-pane fade" id="sample-details" role="tabpanel">
+            <h4><i class="fas fa-table"></i> Sample Details</h4>
+            <p class="lead">Comprehensive overview of all analyzed samples with detailed metrics and interpretations.</p>
+            
+            {summary_cards_html}
+            
+            {status_cards_html}
+            
+            {sample_table_html}
+            
+            {individual_plots_html}
+        </div>
+        """
+
+    def _get_dashboard_data(self, base_output_dir):
+        """Extract comprehensive dashboard data from damage analysis results"""
+        if not self.damage_plotter:
+            return {'has_data': False, 'summary': {}, 'samples': []}
+        
+        return self.damage_plotter.get_dashboard_data(base_output_dir)
     
     def _generate_hvs_tab(self, stats: Dict[str, Any]) -> str:
         """Generate the HVS combinations tab content."""
