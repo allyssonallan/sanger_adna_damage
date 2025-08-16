@@ -35,9 +35,10 @@ def cli(verbose):
 )
 @click.option("--config", "-c", type=click.Path(exists=True), help="Configuration file (YAML)")
 @click.option("--min-quality", "-q", default=20, help="Minimum Phred quality score (default: 20)")
+@click.option("--min-sequence-length", "-l", default=30, help="Minimum sequence length after filtering (default: 30)")
 @click.option("--alignment-tool", default="mafft", help="Alignment tool (default: mafft)")
 @click.option("--alignment-params", default="--auto", help="Alignment parameters (default: --auto)")
-def run_pipeline(input_dir, output_dir, config, min_quality, alignment_tool, alignment_params):
+def run_pipeline(input_dir, output_dir, config, min_quality, min_sequence_length, alignment_tool, alignment_params):
     """Run the complete Sanger sequencing pipeline."""
     click.echo(f"Running Sanger pipeline: {input_dir} -> {output_dir}")
 
@@ -47,6 +48,7 @@ def run_pipeline(input_dir, output_dir, config, min_quality, alignment_tool, ali
             output_dir=Path(output_dir),
             config_file=Path(config) if config else None,
             min_quality=min_quality,
+            min_sequence_length=min_sequence_length,
             alignment={"tool": alignment_tool, "parameters": alignment_params},
         )
 
@@ -67,23 +69,27 @@ def run_pipeline(input_dir, output_dir, config, min_quality, alignment_tool, ali
 @click.argument("ab1_file", type=click.Path(exists=True))
 @click.argument("output_fasta", type=click.Path())
 @click.option("--min-quality", "-q", default=20, help="Minimum Phred quality score (default: 20)")
+@click.option("--min-sequence-length", "-l", default=30, help="Minimum sequence length after filtering (default: 30)")
 @click.option("--generate-plot", is_flag=True, help="Generate quality plot")
-def convert_ab1(ab1_file, output_fasta, min_quality, generate_plot):
+def convert_ab1(ab1_file, output_fasta, min_quality, min_sequence_length, generate_plot):
     """Convert single AB1 file to FASTA format."""
     click.echo(f"Converting {ab1_file} to {output_fasta}")
 
     try:
-        converter = AB1Converter(min_quality=min_quality)
+        converter = AB1Converter(min_quality=min_quality, min_sequence_length=min_sequence_length)
         output_path = Path(output_fasta)
 
         # Convert to FASTA
         record = converter.convert_to_fasta(Path(ab1_file), output_path)
 
-        # Generate filtered version
+        # Generate filtered version if quality filtering is enabled
         if min_quality > 0:
             filtered_path = output_path.with_suffix("").with_suffix("_filtered.fasta")
-            converter.filter_by_quality(record, filtered_path)
-            click.echo(f"Generated filtered FASTA: {filtered_path}")
+            filtered_record = converter.filter_by_quality(record, filtered_path)
+            if filtered_record is not None:
+                click.echo(f"Generated filtered FASTA: {filtered_path}")
+            else:
+                click.echo(f"Sequence excluded due to insufficient length (minimum: {min_sequence_length} valid bases)")
 
         # Generate plot if requested
         if generate_plot:

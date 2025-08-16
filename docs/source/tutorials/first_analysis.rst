@@ -4,6 +4,18 @@ Your First Analysis
 
 This tutorial walks you through running your first complete analysis with the Sanger DNA Damage Analysis Pipeline. By the end, you'll have processed AB1 files and generated a comprehensive QC report.
 
+.. attention::
+   **🎯 Understanding Tool Purpose**
+   
+   This analysis provides **preliminary screening results** to help you:
+   
+   * Identify samples with promising damage patterns for NGS follow-up
+   * Assess sequence quality and insert sizes
+   * Prioritize haplogroups for further investigation
+   * Make informed decisions about resource allocation
+   
+   **This is NOT a substitute for proper NGS-based aDNA authentication.** Use these results to guide your NGS sample selection and experimental design.
+
 🎯 Tutorial Goals
 ================
 

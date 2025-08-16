@@ -4,6 +4,11 @@ Installation
 
 This guide walks you through installing the Sanger DNA Damage Analysis Pipeline on your system.
 
+.. note::
+   **About This Tool**
+   
+   Before installing, please note that this pipeline is designed for **sample prioritization and preliminary screening**, not for definitive ancient DNA authentication. The tool helps identify promising samples for follow-up NGS analysis based on damage patterns, insert size, and haplogroup assessment.
+
 📋 Prerequisites
 ================
 

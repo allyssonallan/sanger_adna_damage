@@ -4,6 +4,23 @@ Understanding Damage Analysis
 
 This guide provides a comprehensive understanding of ancient DNA damage analysis in the Sanger DNA Damage Analysis Pipeline, covering the scientific background, methods, and interpretation of results.
 
+.. danger::
+   **🚨 Critical Limitation: Authentication vs. Screening**
+   
+   **This pipeline provides SURROGATE damage indicators for SCREENING purposes only.**
+   
+   The damage analysis in this tool:
+   
+   * ✅ **Good for**: Sample prioritization, quality assessment, resource allocation decisions
+   * ✅ **Good for**: Identifying promising samples for NGS follow-up
+   * ✅ **Good for**: Preliminary haplogroup assessment based on sequence content
+   
+   * ❌ **NOT sufficient for**: Definitive ancient DNA authentication
+   * ❌ **NOT a replacement for**: Proper NGS-based aDNA analysis with controls
+   * ❌ **NOT suitable for**: Publication-quality authentication without NGS validation
+   
+   **All serious aDNA authentication requires NGS with appropriate blank controls, phylogenetic analysis, and contamination assessment.**
+
 🧬 Scientific Background
 ========================
 

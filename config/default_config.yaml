@@ -3,6 +3,7 @@
 # Quality control settings
 quality:
   min_phred_score: 15
+  min_sequence_length: 30
   terminal_length: 10
 
 # Alignment settings

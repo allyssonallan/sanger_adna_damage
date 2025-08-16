@@ -26,6 +26,7 @@ class SangerPipeline:
         output_dir: Path,
         config_file: Optional[Path] = None,
         min_quality: int = 20,
+        min_sequence_length: int = 30,
         alignment: Optional[Dict] = None,
     ):
         """
@@ -36,21 +37,28 @@ class SangerPipeline:
             output_dir: Directory for output files
             config_file: Optional configuration file
             min_quality: Minimum Phred quality score
+            min_sequence_length: Minimum sequence length after filtering
             alignment: Alignment configuration
         """
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
         self.min_quality = min_quality
+        self.min_sequence_length = min_sequence_length
         self.alignment = alignment or {"tool": "mafft", "parameters": "--auto"}
 
         # Load configuration
         self.config = load_config(config_file) if config_file else {}
 
+        # Override with config values if available
+        quality_config = self.config.get('quality', {})
+        self.min_quality = quality_config.get('min_phred_score', min_quality)
+        self.min_sequence_length = quality_config.get('min_sequence_length', min_sequence_length)
+
         # Create output directories
         self.directories = create_directories(self.output_dir)
 
-        # Initialize components
-        self.ab1_converter = AB1Converter(min_quality=min_quality)
+        # Initialize components with sequence length filtering
+        self.ab1_converter = AB1Converter(min_quality=self.min_quality, min_sequence_length=self.min_sequence_length)
         self.consensus_builder = ConsensusBuilder()
         
         # Get damage threshold from config or use default
@@ -58,6 +66,7 @@ class SangerPipeline:
         self.damage_analyzer = ADNADamageAnalyzer(min_damage_threshold=damage_threshold)
 
         logger.info(f"Initialized pipeline: {input_dir} -> {output_dir}")
+        logger.info(f"Quality settings: min_quality={self.min_quality}, min_sequence_length={self.min_sequence_length}")
 
     def run(self) -> None:
         """
@@ -80,9 +89,9 @@ class SangerPipeline:
 
     def _step_1_convert_ab1_files(self) -> None:
         """
-        Step 1: Convert AB1 files to FASTA format with quality filtering.
+        Step 1: Convert AB1 files to FASTA format with quality filtering and length validation.
         """
-        logger.info("Step 1: Converting AB1 files to FASTA with quality filtering")
+        logger.info("Step 1: Converting AB1 files to FASTA with quality filtering and length validation")
 
         ab1_files = list(self.input_dir.glob("*.ab1"))
         if not ab1_files:
@@ -90,22 +99,34 @@ class SangerPipeline:
             return
 
         processed_files = 0
+        filtered_files = 0
+        excluded_files = 0
+        
         for ab1_file in ab1_files:
             fasta_output = self.directories["fasta"] / f"{ab1_file.stem}.fasta"
             filtered_output = self.directories["filtered"] / f"{ab1_file.stem}_filtered.fasta"
             plot_output = self.directories["plots"] / f"{ab1_file.stem}_quality.png"
 
             try:
-                # Convert AB1 to FASTA, filter by quality, and generate quality plot
-                seq_record = self.ab1_converter.convert_to_fasta(ab1_file, fasta_output)
-                filtered_record = self.ab1_converter.filter_by_quality(seq_record, filtered_output)
-                self.ab1_converter.generate_quality_plot(seq_record, plot_output)
+                # Process AB1 file: convert, filter, and plot
+                raw_record, filtered_record = self.ab1_converter.process_ab1_file(
+                    ab1_file, fasta_output, filtered_output, plot_output
+                )
                 processed_files += 1
+                
+                if filtered_record is not None:
+                    filtered_files += 1
+                else:
+                    excluded_files += 1
+                    # Remove the empty filtered file if it was created but sequence was too short
+                    if filtered_output.exists():
+                        filtered_output.unlink()
+                        
             except Exception as e:
                 logger.error(f"Failed to process {ab1_file}: {e}")
                 continue
 
-        logger.info(f"Converted {processed_files} AB1 files to FASTA and generated filtered versions")
+        logger.info(f"Processed {processed_files} AB1 files: {filtered_files} passed filtering, {excluded_files} excluded (too short)")
 
     def _step_2_align_and_consensus(self) -> None:
         """

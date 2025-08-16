@@ -4,6 +4,17 @@ Quick Start Guide
 
 This guide will get you up and running with the Sanger DNA Damage Analysis Pipeline in just a few minutes.
 
+.. warning::
+   **Important: Tool Purpose & Scope**
+   
+   This pipeline is designed for **preliminary screening and haplogroup prioritization**, not for definitive ancient DNA authentication. Use this tool to:
+   
+   * Prioritize promising samples for NGS analysis
+   * Assess sequence quality and damage indicators  
+   * Guide resource allocation decisions
+   
+   **Definitive aDNA authentication requires NGS-based methods with proper controls and contamination assessment.**
+
 🚀 5-Minute Quick Start
 =======================
 

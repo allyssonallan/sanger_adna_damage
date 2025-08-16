@@ -3,9 +3,9 @@ Quality filtering utilities for sequence data.
 """
 
 import logging
-from typing import List
+from typing import List, Optional
 
-from ..utils.constants import DEFAULT_MIN_QUALITY
+from ..utils.constants import DEFAULT_MIN_QUALITY, DEFAULT_MIN_SEQUENCE_LENGTH
 
 
 logger = logging.getLogger(__name__)
@@ -16,14 +16,16 @@ class QualityFilter:
     Quality filtering for sequence data.
     """
 
-    def __init__(self, min_quality: int = DEFAULT_MIN_QUALITY):
+    def __init__(self, min_quality: int = DEFAULT_MIN_QUALITY, min_sequence_length: int = DEFAULT_MIN_SEQUENCE_LENGTH):
         """
         Initialize quality filter.
 
         Args:
             min_quality: Minimum quality score threshold
+            min_sequence_length: Minimum sequence length after filtering
         """
         self.min_quality = min_quality
+        self.min_sequence_length = min_sequence_length
 
     def filter_sequence(self, sequence: str, qualities: List[int]) -> str:
         """
@@ -44,6 +46,45 @@ class QualityFilter:
         )
 
         return filtered_seq
+
+    def validate_sequence_length(self, sequence: str) -> bool:
+        """
+        Check if sequence meets minimum length requirement after removing N's and gaps.
+
+        Args:
+            sequence: DNA sequence string
+
+        Returns:
+            True if sequence is long enough, False otherwise
+        """
+        # Count only valid nucleotides (not N's or gaps)
+        valid_bases = sum(1 for base in sequence if base in 'ATCG')
+        is_valid = valid_bases >= self.min_sequence_length
+        
+        if not is_valid:
+            logger.warning(f"Sequence too short: {valid_bases} valid bases (minimum: {self.min_sequence_length})")
+        
+        return is_valid
+
+    def filter_sequence_with_length_check(self, sequence: str, qualities: List[int]) -> Optional[str]:
+        """
+        Filter sequence by quality scores and validate minimum length.
+
+        Args:
+            sequence: DNA sequence string
+            qualities: List of quality scores
+
+        Returns:
+            Filtered sequence if it meets length requirements, None otherwise
+        """
+        # First apply quality filtering
+        filtered_seq = self.filter_sequence(sequence, qualities)
+        
+        # Then check if it meets minimum length requirement
+        if self.validate_sequence_length(filtered_seq):
+            return filtered_seq
+        else:
+            return None
 
     def calculate_quality_stats(self, qualities: List[int]) -> dict:
         """

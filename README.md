@@ -6,6 +6,21 @@
 
 A comprehensive pipeline for processing Sanger sequencing data from ancient DNA (aDNA) samples, with automatic damage pattern analysis and quality assessment.
 
+> [!IMPORTANT]
+> **🚨 IMPORTANT DISCLAIMER - Tool Purpose & Limitations**
+>
+> This pipeline is **NOT** a tool for authenticating ancient DNA samples. It is designed for:
+>
+> - **Prioritizing haplogroups** for follow-up analysis
+> - **Evaluating sample quality** based on insert size and damage patterns
+> - **Providing surrogate bootstrapped damage indicators**
+> - **Assisting in haplogroup origin assessment**
+> - **Guiding selection** of promising samples for NGS sequencing
+>
+> **⚠️ All ancient DNA authentication must be performed using NGS-based methods** with appropriate controls, contamination assessment, and phylogenetic analysis.
+>
+> This tool provides preliminary screening to help researchers prioritize samples and resources before proceeding to comprehensive NGS-based ancient DNA authentication workflows.
+
 ## 🚀 Quick Start
 
 ### Installation

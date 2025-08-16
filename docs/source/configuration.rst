@@ -4,6 +4,11 @@ Configuration
 
 The Sanger DNA Damage Analysis Pipeline uses YAML configuration files to control its behavior. This guide explains all configuration options and how to customize them for your specific needs.
 
+.. tip::
+   **Configuration for Screening Workflows**
+   
+   Remember that this pipeline is designed for **sample screening and prioritization**. Configure parameters to optimize for identifying promising samples for NGS follow-up, not for definitive authentication.
+
 📁 Configuration Files
 ======================
 
@@ -16,7 +21,7 @@ The pipeline comes with a default configuration file at ``config/default_config.
 
    # config/default_config.yaml
    quality_threshold: 20
-   min_sequence_length: 50
+   min_sequence_length: 30
    damage_threshold: 0.05
    bootstrap_iterations: 10000
    
