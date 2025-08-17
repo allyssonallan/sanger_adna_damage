@@ -92,6 +92,27 @@ python -m pytest tests/
 cd docs && python -m sphinx.cmd.build source _build
 ```
 
+## 🧬 Haplogroup Classification
+
+After processing samples through the pipeline, you can convert the consensus sequences to HSD format for haplogroup classification using [HaploGrep](https://haplogrep.i-med.ac.at/):
+
+```bash
+# Convert pipeline output to HSD format
+python convert_hvs_consensus_to_hsd.py output_min30_q30/consensus/ my_samples.hsd
+
+# Upload the resulting .hsd file to HaploGrep for haplogroup analysis
+```
+
+The converter processes individual HVS consensus files and produces scientifically accurate variant calls suitable for mitochondrial haplogroup classification.
+
+**Key Features:**
+
+- ✅ Processes individual HVS1, HVS2, and HVS3 consensus files
+- ✅ Correctly maps variants to mitochondrial genome positions
+- ✅ Consolidates multiple HVS regions per sample
+- ✅ Produces reasonable variant counts (10-35 per region)
+- ✅ Compatible with HaploGrep analysis workflow
+
 See the [Contributing Guide](https://allysson.dev.br/sanger_adna_damage/contributing.html) for development workflows.
 
 ## 📝 License
