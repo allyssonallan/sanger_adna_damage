@@ -59,6 +59,7 @@ coverage.xml
 fasta/
 input/
 output/
+output*
 filtered/
 consensus/
 aligned/

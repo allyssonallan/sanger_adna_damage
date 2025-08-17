@@ -94,7 +94,7 @@ You should see something like:
 .. code-block:: yaml
 
    quality_threshold: 20
-   min_sequence_length: 50
+   min_sequence_length: 15
    damage_threshold: 0.05
    bootstrap_iterations: 10000
    
