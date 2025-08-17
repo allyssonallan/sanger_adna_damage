@@ -8,6 +8,7 @@ damage visualization plots.
 
 import json
 import logging
+import base64
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any
@@ -46,6 +47,32 @@ class QCReportGenerator:
             'light': '#F8F9FA',
             'dark': '#343A40'
         }
+    
+    def _encode_logos(self) -> Dict[str, str]:
+        """Encode institutional logos as base64 strings."""
+        logos = {}
+        config_dir = Path(__file__).parent.parent.parent.parent / "config" / "logos"
+        
+        logo_files = {
+            'funcap': 'funcap.png',
+            'labbat': 'labbat.png', 
+            'npdm': 'npdm.png',
+            'ufc': 'ufc.png'
+        }
+        
+        for logo_key, filename in logo_files.items():
+            logo_path = config_dir / filename
+            if logo_path.exists():
+                try:
+                    with open(logo_path, 'rb') as f:
+                        logo_data = f.read()
+                    logos[logo_key] = base64.b64encode(logo_data).decode('utf-8')
+                except Exception as e:
+                    logger.warning(f"Could not encode logo {filename}: {e}")
+            else:
+                logger.warning(f"Logo file not found: {logo_path}")
+        
+        return logos
     
     def collect_pipeline_statistics(self) -> Dict[str, Any]:
         """Collect comprehensive statistics from all pipeline outputs."""
@@ -260,6 +287,27 @@ class QCReportGenerator:
     
     def generate_html_report(self, stats: Dict[str, Any]) -> str:
         """Generate beautiful HTML report with tabs."""
+        
+        # Encode logos
+        logos = self._encode_logos()
+        
+        # Generate logo HTML
+        logo_html_top = ""
+        logo_html_bottom = ""
+        
+        if logos:
+            # Top row: UFC and FUNCAP
+            if 'ufc' in logos:
+                logo_html_top += f'<a href="https://ufc.br" target="_blank" rel="noopener noreferrer"><img src="data:image/png;base64,{logos["ufc"]}" alt="UFC Logo" title="Universidade Federal do Ceará - https://ufc.br"></a>'
+            if 'funcap' in logos:
+                logo_html_top += f'<a href="https://funcap.ce.gov.br" target="_blank" rel="noopener noreferrer"><img src="data:image/png;base64,{logos["funcap"]}" alt="FUNCAP Logo" title="Fundação Cearense de Apoio ao Desenvolvimento Científico e Tecnológico - https://www.funcap.ce.gov.br"></a>'
+            
+            # Bottom row: LABBAT and NPDM  
+            if 'labbat' in logos:
+                logo_html_bottom += f'<a href="https://instagram.com/labbat.npdm.ufc" target="_blank" rel="noopener noreferrer"><img src="data:image/png;base64,{logos["labbat"]}" alt="LABBAT Logo" title="Laboratório de Bioarqueologia Translacional - https://instagram.com/labbat.npdm.ufc"></a>'
+            if 'npdm' in logos:
+                logo_html_bottom += f'<a href="https://npdm.ufc.br" target="_blank" rel="noopener noreferrer"><img src="data:image/png;base64,{logos["npdm"]}" alt="NPDM Logo" title="Núcleo de Pesquisa e Desenvolvimento de Medicamentos - https://npdm.ufc.br"></a>'
+        
         html_template = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -296,7 +344,14 @@ class QCReportGenerator:
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        
+        .header-content {{
             text-align: center;
+            flex: 1;
         }}
         
         .header h1 {{
@@ -309,6 +364,56 @@ class QCReportGenerator:
             opacity: 0.9;
             font-size: 1.1rem;
             margin-top: 0.5rem;
+        }}
+        
+        .header-logos {{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }}
+        
+        .logo-row {{
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }}
+        
+        .header-logos img {{
+            height: 40px;
+            max-width: 80px;
+            object-fit: contain;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }}
+        
+        .header-logos a {{
+            display: inline-block;
+            text-decoration: none;
+        }}
+        
+        .header-logos a:hover img {{
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }}
+        
+        @media (max-width: 768px) {{
+            .header {{
+                flex-direction: column;
+                gap: 1rem;
+            }}
+            
+            .header-logos img {{
+                height: 30px;
+                max-width: 60px;
+            }}
+            
+            .logo-row {{
+                gap: 10px;
+            }}
         }}
         
         .nav-tabs {{
@@ -384,9 +489,19 @@ class QCReportGenerator:
 <body>
     <div class="main-container">
         <div class="header">
-            <h1><i class="fas fa-dna"></i> Sanger Pipeline QC Report</h1>
-            <div class="timestamp">
-                <i class="fas fa-clock"></i> Generated on {stats['timestamp']}
+            <div class="header-content">
+                <h1><i class="fas fa-dna"></i> Sanger Pipeline QC Report</h1>
+                <div class="timestamp">
+                    <i class="fas fa-clock"></i> Generated on {stats['timestamp']}
+                </div>
+            </div>
+            <div class="header-logos">
+                <div class="logo-row">
+                    {logo_html_top}
+                </div>
+                <div class="logo-row">
+                    {logo_html_bottom}
+                </div>
             </div>
         </div>
         

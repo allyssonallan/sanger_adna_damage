@@ -118,7 +118,7 @@ If you use this software in academic research, please cite:
 
    @software{sanger_adna_pipeline_2024,
      title={Sanger DNA Damage Analysis Pipeline},
-     author={Farias, Allysson Allan de},
+     author={Farias, Allysson Allan de; LABBAT},
      year={2024},
      url={https://github.com/allyssonallan/sanger_adna_damage},
      license={MIT}
@@ -126,7 +126,7 @@ If you use this software in academic research, please cite:
 
 Or in text format:
 
-Farias, A. A. (2024). Sanger DNA Damage Analysis Pipeline. GitHub. https://github.com/allyssonallan/sanger_adna_damage
+Farias, A. A., LABBAT. (2024). Sanger DNA Damage Analysis Pipeline. GitHub. https://github.com/allyssonallan/sanger_adna_damage
 
 Disclaimer
 ==========
