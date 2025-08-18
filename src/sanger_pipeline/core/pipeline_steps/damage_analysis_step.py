@@ -4,6 +4,8 @@ Damage analysis step handler for the Sanger pipeline.
 This module handles ancient DNA damage pattern analysis.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from pathlib import Path

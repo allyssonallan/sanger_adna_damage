@@ -4,6 +4,8 @@ HSD conversion step handler for the Sanger pipeline.
 This module handles conversion of consensus sequences to HSD format for haplogroup analysis.
 """
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 from typing import Dict

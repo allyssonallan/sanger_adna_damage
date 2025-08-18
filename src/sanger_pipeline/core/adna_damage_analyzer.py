@@ -2,6 +2,8 @@
 Refactored ancient DNA damage analysis module using modular components.
 """
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 from typing import Dict, List

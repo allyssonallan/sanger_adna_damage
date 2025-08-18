@@ -4,6 +4,8 @@ Region merging step handler for the Sanger pipeline.
 This module handles merging of available HVS regions into final consensus sequences.
 """
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 from typing import Dict

@@ -2,6 +2,8 @@
 Damage calculator component for ancient DNA analysis.
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Dict
 from .sequence_aligner import SequenceAligner

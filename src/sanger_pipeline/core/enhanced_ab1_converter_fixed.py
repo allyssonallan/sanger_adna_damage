@@ -2,6 +2,8 @@
 Enhanced AB1 file converter with primer removal and trimming capabilities.
 """
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any

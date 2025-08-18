@@ -2,6 +2,8 @@
 AB1 file converter with quality filtering and plotting capabilities.
 """
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 from typing import Tuple, Optional
