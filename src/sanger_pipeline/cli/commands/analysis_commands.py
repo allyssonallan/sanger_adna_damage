@@ -51,7 +51,7 @@ def analyze_damage(input_file, reference, output_dir, sample_name):
         # Analyze damage patterns for single file
         input_path = Path(input_file)
         ref_path = Path(reference)
-        
+
         results = analyzer.analyze_sequence_damage(input_path, ref_path)
 
         # Generate plots for the single file
@@ -65,20 +65,24 @@ def analyze_damage(input_file, reference, output_dir, sample_name):
 
         # Save results
         results_file = output_path / f"{sample_name}_damage_results.json"
-        with open(results_file, 'w') as f:
-            json.dump({
-                'damage_patterns': results,
-                'bootstrap_analysis': bootstrap_results,
-                'damage_assessment': damage_assessment
-            }, f, indent=2)
+        with open(results_file, "w") as f:
+            json.dump(
+                {
+                    "damage_patterns": results,
+                    "bootstrap_analysis": bootstrap_results,
+                    "damage_assessment": damage_assessment,
+                },
+                f,
+                indent=2,
+            )
 
         click.echo("Damage analysis complete")
         click.echo(f"  Results saved to: {results_file}")
         click.echo(f"  Plots saved to: {output_path}")
         click.echo(f"  Status: {damage_assessment['status']}")
-        if damage_assessment['status'] == "DAMAGE_INDICATED":
+        if damage_assessment["status"] == "DAMAGE_INDICATED":
             click.echo("  ✓ Damage patterns are indicative of ancient DNA")
-        elif damage_assessment['status'] == "PARTIAL_DAMAGE_SIGNATURE":
+        elif damage_assessment["status"] == "PARTIAL_DAMAGE_SIGNATURE":
             click.echo("  ~ Partial damage signature detected")
         else:
             click.echo("  ✗ No significant damage signature")
@@ -114,26 +118,30 @@ def damage_summary(results_dir):
 
     for result_file in result_files:
         try:
-            with open(result_file, 'r') as f:
+            with open(result_file, "r") as f:
                 data = json.load(f)
-            
+
             sample_name = result_file.stem.replace("_damage_results", "")
-            
+
             # Check for new or old format
-            if 'damage_assessment' in data:
-                assessment = data['damage_assessment']
-                status = assessment.get('status', 'UNKNOWN')
+            if "damage_assessment" in data:
+                assessment = data["damage_assessment"]
+                status = assessment.get("status", "UNKNOWN")
             else:
                 # Handle old format for backward compatibility
-                assessment = data.get('authenticity_assessment', {})
-                score = assessment.get('authenticity_score', 0)
+                assessment = data.get("authenticity_assessment", {})
+                score = assessment.get("authenticity_score", 0)
                 status = "DAMAGE_INDICATED" if score > 0.5 else "NO_DAMAGE_SIGNATURE"
-            
+
             # Get sequence quality info
-            damage_patterns = data.get('damage_patterns', {})
-            n_percentage = damage_patterns.get('sequence_quality', {}).get('n_percentage', 0)
-            valid_percentage = damage_patterns.get('sequence_quality', {}).get('valid_percentage', 100)
-            
+            damage_patterns = data.get("damage_patterns", {})
+            n_percentage = damage_patterns.get("sequence_quality", {}).get(
+                "n_percentage", 0
+            )
+            valid_percentage = damage_patterns.get("sequence_quality", {}).get(
+                "valid_percentage", 100
+            )
+
             if status == "DAMAGE_INDICATED":
                 damage_indicated_samples += 1
                 status_display = "✓ Damage Indicated"
@@ -142,9 +150,11 @@ def damage_summary(results_dir):
                 status_display = "~ Partial Damage"
             else:
                 status_display = "✗ No Damage Signal"
-            
-            click.echo(f"{sample_name:20} | N: {n_percentage:4.1f}% | Valid: {valid_percentage:4.1f}% | {status_display}")
-            
+
+            click.echo(
+                f"{sample_name:20} | N: {n_percentage:4.1f}% | Valid: {valid_percentage:4.1f}% | {status_display}"
+            )
+
         except Exception as e:
             click.echo(f"Error reading {result_file}: {e}")
 
@@ -152,12 +162,24 @@ def damage_summary(results_dir):
     click.echo(f"Total samples: {total_samples}")
     click.echo(f"Damage indicated: {damage_indicated_samples}")
     click.echo(f"Partial damage signatures: {partial_damage_samples}")
-    click.echo(f"No damage signatures: {total_samples - damage_indicated_samples - partial_damage_samples}")
-    click.echo(f"Damage indication rate: {(damage_indicated_samples/total_samples)*100:.1f}%")
-    
+    click.echo(
+        f"No damage signatures: {total_samples - damage_indicated_samples - partial_damage_samples}"
+    )
+    click.echo(
+        f"Damage indication rate: {(damage_indicated_samples/total_samples)*100:.1f}%"
+    )
+
     if total_samples > 0:
-        avg_valid = sum([
-            json.load(open(f))['damage_patterns'].get('sequence_quality', {}).get('valid_percentage', 100)
-            for f in result_files if f.exists()
-        ]) / total_samples
+        avg_valid = (
+            sum(
+                [
+                    json.load(open(f))["damage_patterns"]
+                    .get("sequence_quality", {})
+                    .get("valid_percentage", 100)
+                    for f in result_files
+                    if f.exists()
+                ]
+            )
+            / total_samples
+        )
         click.echo(f"Average sequence quality: {avg_valid:.1f}% valid bases")

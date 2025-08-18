@@ -15,115 +15,114 @@ logger = logging.getLogger(__name__)
 
 class HTMLTemplateGenerator:
     """Generates HTML templates and content for QC reports."""
-    
+
     def __init__(self, output_dir: Path):
         """
         Initialize HTML template generator.
-        
+
         Args:
             output_dir: Pipeline output directory
         """
         self.output_dir = Path(output_dir)
-        
+
         # Define color palette
         self.colors = {
-            'primary': '#2E86AB',
-            'secondary': '#A23B72', 
-            'success': '#F18F01',
-            'warning': '#C73E1D',
-            'info': '#6C757D',
-            'light': '#F8F9FA',
-            'dark': '#343A40'
+            "primary": "#2E86AB",
+            "secondary": "#A23B72",
+            "success": "#F18F01",
+            "warning": "#C73E1D",
+            "info": "#6C757D",
+            "light": "#F8F9FA",
+            "dark": "#343A40",
         }
-    
+
     def _encode_logos(self) -> Dict[str, str]:
         """
         Encode logo images to base64 for embedding in HTML.
-        
+
         Returns:
             Dictionary mapping logo names to base64 encoded strings
         """
         logos = {}
         logo_dir = Path(__file__).parent.parent.parent.parent / "config" / "logos"
-        
+
         if logo_dir.exists():
             for logo_file in logo_dir.glob("*.png"):
                 try:
                     with open(logo_file, "rb") as f:
-                        encoded = base64.b64encode(f.read()).decode('utf-8')
+                        encoded = base64.b64encode(f.read()).decode("utf-8")
                         logos[logo_file.stem.lower()] = encoded
                 except Exception as e:
                     logger.warning(f"Could not encode logo {logo_file}: {e}")
-        
+
         return logos
-    
+
     def generate_html_report(self, stats: Dict[str, Any]) -> str:
         """
         Generate complete HTML report.
-        
+
         Args:
             stats: Statistics dictionary from StatisticsCollector
-            
+
         Returns:
             Complete HTML report as string
         """
         # Encode logos
         logos = self._encode_logos()
-        
+
         # Generate logo HTML
         logo_html_top, logo_html_bottom = self._generate_logo_html(logos)
-        
+
         # Generate main HTML template
         html_template = self._generate_main_template(logo_html_top, logo_html_bottom)
-        
+
         # Generate tab content
         tab_content = self._generate_all_tabs(stats)
-        
+
         # Generate JavaScript for charts
         charts_js = self._generate_charts_javascript(stats)
-        
+
         # Combine everything
         return html_template.format(
-            tab_content=tab_content,
-            charts_javascript=charts_js
+            tab_content=tab_content, charts_javascript=charts_js
         )
-    
+
     def _generate_logo_html(self, logos: Dict[str, str]) -> tuple[str, str]:
         """
         Generate HTML for logos.
-        
+
         Args:
             logos: Dictionary of base64 encoded logos
-            
+
         Returns:
             Tuple of (top_row_html, bottom_row_html)
         """
         logo_html_top = ""
         logo_html_bottom = ""
-        
+
         if logos:
             # Top row: UFC and FUNCAP
-            if 'ufc' in logos:
+            if "ufc" in logos:
                 logo_html_top += f'<a href="https://ufc.br" target="_blank" rel="noopener noreferrer"><img src="data:image/png;base64,{logos["ufc"]}" alt="UFC Logo" title="Universidade Federal do Ceará - https://ufc.br"></a>'
-            if 'funcap' in logos:
+            if "funcap" in logos:
                 logo_html_top += f'<a href="https://funcap.ce.gov.br" target="_blank" rel="noopener noreferrer"><img src="data:image/png;base64,{logos["funcap"]}" alt="FUNCAP Logo" title="Fundação Cearense de Apoio ao Desenvolvimento Científico e Tecnológico - https://www.funcap.ce.gov.br"></a>'
-            
-            # Bottom row: LABBAT and NPDM  
-            if 'labbat' in logos:
+
+            # Bottom row: LABBAT and NPDM
+            if "labbat" in logos:
                 logo_html_bottom += f'<a href="https://instagram.com/labbat.npdm.ufc" target="_blank" rel="noopener noreferrer"><img src="data:image/png;base64,{logos["labbat"]}" alt="LABBAT Logo" title="Laboratório de Bioarqueologia Translacional - https://instagram.com/labbat.npdm.ufc"></a>'
-            if 'npdm' in logos:
+            if "npdm" in logos:
                 logo_html_bottom += f'<a href="https://npdm.ufc.br" target="_blank" rel="noopener noreferrer"><img src="data:image/png;base64,{logos["npdm"]}" alt="NPDM Logo" title="Núcleo de Pesquisa e Desenvolvimento de Medicamentos - https://npdm.ufc.br"></a>'
-        
+
         return logo_html_top, logo_html_bottom
-    
+
     def _generate_main_template(self, logo_html_top: str, logo_html_bottom: str) -> str:
         """
         Generate main HTML template structure.
-        
+
         Args:
             logo_html_top: HTML for top row logos
             logo_html_bottom: HTML for bottom row logos
-            
+
         Returns:
             HTML template string with placeholders
         """
@@ -198,7 +197,7 @@ class HTMLTemplateGenerator:
 </body>
 </html>
 """
-    
+
     def _generate_css_styles(self) -> str:
         """Generate CSS styles for the report."""
         return f"""
@@ -378,7 +377,7 @@ class HTMLTemplateGenerator:
         }}
     </style>
 """
-    
+
     def _generate_header_html(self, logo_html_top: str, logo_html_bottom: str) -> str:
         """Generate header HTML section."""
         return f"""
@@ -397,7 +396,7 @@ class HTMLTemplateGenerator:
             </div>
         </div>
 """
-    
+
     def _generate_footer_html(self) -> str:
         """Generate footer HTML section."""
         return """
@@ -411,14 +410,14 @@ class HTMLTemplateGenerator:
             document.getElementById('report-date').textContent = new Date().toLocaleDateString();
         </script>
 """
-    
+
     def _generate_all_tabs(self, stats: Dict[str, Any]) -> str:
         """
         Generate content for all tabs.
-        
+
         Args:
             stats: Statistics dictionary
-            
+
         Returns:
             HTML content for all tabs
         """
@@ -430,12 +429,14 @@ class HTMLTemplateGenerator:
             {self._generate_hvs_tab(stats)}
             {self._generate_sample_details_tab(stats)}
         """
-    
+
     def _generate_overview_tab(self, stats: Dict[str, Any]) -> str:
         """Generate overview tab content."""
-        total_files = sum(stats.get(dir_name, {}).get('file_count', 0) 
-                         for dir_name in ['input', 'output', 'consensus', 'final'])
-        
+        total_files = sum(
+            stats.get(dir_name, {}).get("file_count", 0)
+            for dir_name in ["input", "output", "consensus", "final"]
+        )
+
         return f"""
         <div class="tab-pane fade show active" id="overview" role="tabpanel">
             <div class="row">
@@ -488,18 +489,20 @@ class HTMLTemplateGenerator:
             </div>
         </div>
         """
-    
+
     def _generate_directories_tab(self, stats: Dict[str, Any]) -> str:
         """Generate directories tab content."""
         directories_html = ""
-        
-        for dir_name in ['input', 'output', 'consensus', 'final']:
+
+        for dir_name in ["input", "output", "consensus", "final"]:
             dir_data = stats.get(dir_name, {})
-            if dir_data.get('exists', False):
+            if dir_data.get("exists", False):
                 file_types_html = ""
-                for ext, count in dir_data.get('file_types', {}).items():
-                    file_types_html += f'<span class="badge badge-custom me-1">{ext}: {count}</span>'
-                
+                for ext, count in dir_data.get("file_types", {}).items():
+                    file_types_html += (
+                        f'<span class="badge badge-custom me-1">{ext}: {count}</span>'
+                    )
+
                 directories_html += f"""
                 <div class="col-md-6 mb-4">
                     <div class="stat-card">
@@ -519,7 +522,7 @@ class HTMLTemplateGenerator:
                     </div>
                 </div>
                 """
-        
+
         return f"""
         <div class="tab-pane fade" id="directories" role="tabpanel">
             <div class="row">
@@ -527,21 +530,21 @@ class HTMLTemplateGenerator:
             </div>
         </div>
         """
-    
+
     def _generate_samples_tab(self, stats: Dict[str, Any]) -> str:
         """Generate samples tab content."""
-        samples_data = stats.get('samples', {})
-        
+        samples_data = stats.get("samples", {})
+
         if not samples_data:
             return """
             <div class="tab-pane fade" id="samples" role="tabpanel">
                 <div class="alert alert-info">No sample data available</div>
             </div>
             """
-        
+
         samples_rows = ""
         for sample_name, sample_info in samples_data.items():
-            hvs_regions = ', '.join(sample_info.get('hvs_regions', []))
+            hvs_regions = ", ".join(sample_info.get("hvs_regions", []))
             samples_rows += f"""
             <tr>
                 <td>{sample_name}</td>
@@ -551,7 +554,7 @@ class HTMLTemplateGenerator:
                 <td>{hvs_regions}</td>
             </tr>
             """
-        
+
         return f"""
         <div class="tab-pane fade" id="samples" role="tabpanel">
             <div class="stat-card">
@@ -575,18 +578,18 @@ class HTMLTemplateGenerator:
             </div>
         </div>
         """
-    
+
     def _generate_damage_tab(self, stats: Dict[str, Any]) -> str:
         """Generate damage analysis tab content."""
-        damage_data = stats.get('damage_data', {})
-        
-        if damage_data.get('files_analyzed', 0) == 0:
+        damage_data = stats.get("damage_data", {})
+
+        if damage_data.get("files_analyzed", 0) == 0:
             return """
             <div class="tab-pane fade" id="damage" role="tabpanel">
                 <div class="alert alert-info">No damage analysis data available</div>
             </div>
             """
-        
+
         return f"""
         <div class="tab-pane fade" id="damage" role="tabpanel">
             <div class="stat-card">
@@ -597,27 +600,27 @@ class HTMLTemplateGenerator:
             </div>
         </div>
         """
-    
+
     def _generate_hvs_tab(self, stats: Dict[str, Any]) -> str:
         """Generate HVS regions tab content."""
-        hvs_data = stats.get('hvs_combinations', {})
-        
-        if not hvs_data.get('combinations'):
+        hvs_data = stats.get("hvs_combinations", {})
+
+        if not hvs_data.get("combinations"):
             return """
             <div class="tab-pane fade" id="hvs" role="tabpanel">
                 <div class="alert alert-info">No HVS combination data available</div>
             </div>
             """
-        
+
         combinations_html = ""
-        for combo, count in hvs_data.get('combinations', {}).items():
+        for combo, count in hvs_data.get("combinations", {}).items():
             combinations_html += f"""
             <tr>
                 <td>{combo}</td>
                 <td>{count}</td>
             </tr>
             """
-        
+
         return f"""
         <div class="tab-pane fade" id="hvs" role="tabpanel">
             <div class="stat-card">
@@ -638,7 +641,7 @@ class HTMLTemplateGenerator:
             </div>
         </div>
         """
-    
+
     def _generate_sample_details_tab(self, stats: Dict[str, Any]) -> str:
         """Generate sample details tab content."""
         return """
@@ -650,7 +653,7 @@ class HTMLTemplateGenerator:
             </div>
         </div>
         """
-    
+
     def _generate_charts_javascript(self, stats: Dict[str, Any]) -> str:
         """Generate JavaScript for charts and interactive elements."""
         return """

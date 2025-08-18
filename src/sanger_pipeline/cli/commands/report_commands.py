@@ -25,22 +25,22 @@ from pathlib import Path
 def generate_report(output_dir, open_browser):
     """Generate comprehensive QC report with analysis summaries."""
     click.echo(f"Generating QC report for: {output_dir}")
-    
+
     try:
         from ...utils.report_generator import QCReportGenerator
-        
+
         report_generator = QCReportGenerator(Path(output_dir))
         report_file = report_generator.generate_report()
-        
+
         click.echo("✅ QC report generated successfully!")
         click.echo(f"📄 Report file: {report_file}")
-        
+
         if open_browser:
             webbrowser.open(f"file://{report_file.absolute()}")
             click.echo("🌐 Report opened in browser")
         else:
             click.echo(f"🌐 Open in browser: file://{report_file.absolute()}")
-            
+
     except Exception as e:
         click.echo(f"❌ Error generating report: {e}", err=True)
         raise click.ClickException(f"Report generation failed: {e}")

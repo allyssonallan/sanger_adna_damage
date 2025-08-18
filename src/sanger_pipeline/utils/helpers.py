@@ -66,11 +66,11 @@ def create_directories(output_dir: Path) -> Dict[str, Path]:
         "output": output_dir,
         "fasta": output_dir / "fasta",
         "filtered": output_dir / "filtered",
-        "aligned": output_dir / "aligned", 
+        "aligned": output_dir / "aligned",
         "consensus": output_dir / "consensus",
         "final": output_dir / "final",
         "plots": output_dir / "plots",
-        "reports": output_dir / "reports"
+        "reports": output_dir / "reports",
     }
 
     # Create all directories

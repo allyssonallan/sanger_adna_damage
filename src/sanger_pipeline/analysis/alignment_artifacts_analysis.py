@@ -8,25 +8,30 @@ reference alignment artifacts in aDNA HSD conversion.
 Author: Sanger aDNA Pipeline
 """
 
+
 def analyze_alignment_artifacts():
     """
     Analyze the alignment artifacts issue and demonstrate the solution.
-    
+
     The user correctly identified that the uniform H2a haplogroup results were
     due to alignment artifacts from fixed-length reference alignment that was
     retrieving reference mutations instead of true genetic variants.
     """
-    
+
     print("=" * 80)
     print("ALIGNMENT ARTIFACTS ANALYSIS REPORT")
     print("=" * 80)
     print()
-    
+
     print("PROBLEM IDENTIFICATION:")
-    print("User reported: 'All these hsd are only H2a the same strategy with alignment artifacts'")
-    print("Issue: Fixed-length reference alignment introducing artificial reference mutations")
+    print(
+        "User reported: 'All these hsd are only H2a the same strategy with alignment artifacts'"
+    )
+    print(
+        "Issue: Fixed-length reference alignment introducing artificial reference mutations"
+    )
     print()
-    
+
     print("ROOT CAUSE ANALYSIS:")
     print("1. ❌ Fixed-length reference alignment:")
     print("   - Forces all sequences to same length regardless of quality")
@@ -43,7 +48,7 @@ def analyze_alignment_artifacts():
     print("   - No sliding window quality assessment")
     print("   - No sequence length requirements")
     print()
-    
+
     print("SOLUTION IMPLEMENTED:")
     print("✅ Quality-based sequence filtering:")
     print("   - Minimum quality threshold: 0.7 (70%)")
@@ -60,7 +65,7 @@ def analyze_alignment_artifacts():
     print("   - Specialized cleaning algorithms")
     print("   - Quality-controlled HSD generation")
     print()
-    
+
     print("RESULTS COMPARISON:")
     print()
     print("📊 BEFORE (Alignment Artifacts):")
@@ -77,7 +82,7 @@ def analyze_alignment_artifacts():
     print("   • Diversity: Good genetic diversity (mean similarity: 0.133)")
     print("   • Haplogroups: Expected to be diverse when analyzed")
     print()
-    
+
     print("TECHNICAL VALIDATION:")
     print("✅ Sequence quality scores: 0.712-0.780 (all above 0.7 threshold)")
     print("✅ Variant diversity: 317 unique positions across 5 samples")
@@ -85,14 +90,14 @@ def analyze_alignment_artifacts():
     print("✅ No reference boundary clustering artifacts")
     print("✅ Good standard deviation in variant counts (33.8)")
     print()
-    
+
     print("NEXT STEPS:")
     print("1. 📤 Upload 'output_q30_final_high_quality.hsd' to HaploGrep")
     print("2. 🧬 Verify diverse haplogroup classifications")
     print("3. 📋 Compare with expected population genetics")
     print("4. 🔄 Apply this quality-controlled pipeline to future samples")
     print()
-    
+
     print("KEY INSIGHT:")
     print("The user's observation was absolutely correct - the uniform H2a results")
     print("were indeed due to 'alignment artifacts' from fixed-length reference")
@@ -103,10 +108,11 @@ def analyze_alignment_artifacts():
     print()
     print("=" * 80)
 
+
 def main():
     """Main execution function."""
     analyze_alignment_artifacts()
-    
+
     # Provide file paths for user reference
     print("FILES GENERATED:")
     print("• output_q30_final_high_quality.hsd - Quality-controlled HSD file")
@@ -116,6 +122,7 @@ def main():
     print("RECOMMENDED NEXT ACTION:")
     print("Upload the high-quality HSD file to HaploGrep for haplogroup analysis")
     print("to verify that diverse haplogroups are now correctly identified.")
+
 
 if __name__ == "__main__":
     main()

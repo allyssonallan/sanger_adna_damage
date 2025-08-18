@@ -12,10 +12,10 @@ from .report_generation_step import ReportGenerationStep
 from .hsd_conversion_step import HSDConversionStep
 
 __all__ = [
-    'AB1ConversionStep',
-    'ConsensusStep',
-    'RegionMergingStep', 
-    'DamageAnalysisStep',
-    'ReportGenerationStep',
-    'HSDConversionStep'
+    "AB1ConversionStep",
+    "ConsensusStep",
+    "RegionMergingStep",
+    "DamageAnalysisStep",
+    "ReportGenerationStep",
+    "HSDConversionStep",
 ]

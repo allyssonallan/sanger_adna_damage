@@ -15,21 +15,21 @@ from .plotting.plot_generator import PlotGenerator
 
 class DamagePlotGenerator:
     """Backward compatibility class for the old DamagePlotGenerator interface."""
-    
+
     def __init__(self, output_dir: Optional[str] = None):
         """Initialize with output directory."""
         self.output_dir = output_dir
         self.coordinator = DamagePlotCoordinator(output_dir) if output_dir else None
-    
+
     def generate_all_plots(self, output_dir: Optional[str] = None) -> Dict[str, str]:
         """Generate all plots with backward compatibility."""
         dir_to_use = output_dir or self.output_dir
         if not dir_to_use:
             raise ValueError("Output directory must be provided")
-        
+
         coordinator = DamagePlotCoordinator(dir_to_use)
         return coordinator.generate_all_plots()
-    
+
     def create_damage_plots(self, output_dir: str) -> Dict[str, str]:
         """Create damage plots (backward compatibility method)."""
         return self.generate_all_plots(output_dir)
@@ -38,10 +38,10 @@ class DamagePlotGenerator:
 def create_damage_plots(output_dir: str) -> Dict[str, str]:
     """
     Create all damage analysis plots for the given output directory.
-    
+
     Args:
         output_dir: Pipeline output directory containing damage analysis data
-        
+
     Returns:
         Dictionary mapping plot types to their base64 encoded images
     """
@@ -52,10 +52,10 @@ def create_damage_plots(output_dir: str) -> Dict[str, str]:
 def create_dashboard_data(base_output_dir: str) -> Dict[str, Any]:
     """
     Generate dashboard data for damage visualization.
-    
+
     Args:
         base_output_dir: Base output directory for analysis
-        
+
     Returns:
         Dashboard-formatted data including plots and statistics
     """
@@ -66,16 +66,16 @@ def create_dashboard_data(base_output_dir: str) -> Dict[str, Any]:
 def create_damage_distribution_plot(output_dir: str) -> Optional[str]:
     """
     Create a damage distribution plot.
-    
+
     Args:
         output_dir: Pipeline output directory
-        
+
     Returns:
         Base64 encoded plot image
     """
     data_collector = DamageDataCollector(Path(output_dir))
     plot_generator = PlotGenerator(Path(output_dir) / "plots")
-    
+
     damage_data = data_collector.collect_damage_data()
     return plot_generator.create_damage_distribution_plot(damage_data)
 
@@ -83,16 +83,16 @@ def create_damage_distribution_plot(output_dir: str) -> Optional[str]:
 def create_correlation_plot(output_dir: str) -> Optional[str]:
     """
     Create a damage correlation plot.
-    
+
     Args:
         output_dir: Pipeline output directory
-        
+
     Returns:
         Base64 encoded plot image
     """
     data_collector = DamageDataCollector(Path(output_dir))
     plot_generator = PlotGenerator(Path(output_dir) / "plots")
-    
+
     damage_data = data_collector.collect_damage_data()
     return plot_generator.create_damage_correlation_plot(damage_data)
 
@@ -100,16 +100,16 @@ def create_correlation_plot(output_dir: str) -> Optional[str]:
 def create_status_summary_plot(output_dir: str) -> Optional[str]:
     """
     Create a status summary plot.
-    
+
     Args:
         output_dir: Pipeline output directory
-        
+
     Returns:
         Base64 encoded plot image
     """
     data_collector = DamageDataCollector(Path(output_dir))
     plot_generator = PlotGenerator(Path(output_dir) / "plots")
-    
+
     damage_data = data_collector.collect_damage_data()
     return plot_generator.create_status_summary_plot(damage_data)
 
@@ -117,16 +117,16 @@ def create_status_summary_plot(output_dir: str) -> Optional[str]:
 def create_quality_damage_plot(output_dir: str) -> Optional[str]:
     """
     Create a quality vs damage plot.
-    
+
     Args:
         output_dir: Pipeline output directory
-        
+
     Returns:
         Base64 encoded plot image
     """
     data_collector = DamageDataCollector(Path(output_dir))
     plot_generator = PlotGenerator(Path(output_dir) / "plots")
-    
+
     damage_data = data_collector.collect_damage_data()
     return plot_generator.create_quality_damage_plot(damage_data)
 
@@ -135,10 +135,10 @@ def create_quality_damage_plot(output_dir: str) -> Optional[str]:
 def get_damage_data(base_output_dir: str) -> Dict[str, Any]:
     """
     Legacy function for backward compatibility.
-    
+
     Args:
         base_output_dir: Base output directory
-        
+
     Returns:
         Dashboard data
     """
@@ -147,11 +147,11 @@ def get_damage_data(base_output_dir: str) -> Dict[str, Any]:
 
 # Export main functions for backward compatibility
 __all__ = [
-    'create_damage_plots',
-    'create_dashboard_data', 
-    'create_damage_distribution_plot',
-    'create_correlation_plot',
-    'create_status_summary_plot',
-    'create_quality_damage_plot',
-    'get_damage_data'
+    "create_damage_plots",
+    "create_dashboard_data",
+    "create_damage_distribution_plot",
+    "create_correlation_plot",
+    "create_status_summary_plot",
+    "create_quality_damage_plot",
+    "get_damage_data",
 ]

@@ -78,11 +78,17 @@ class ConsensusBuilder:
             output_file.parent.mkdir(parents=True, exist_ok=True)
 
             # Run alignment
-            cmd = [self.alignment_tool] + self.alignment_params.split() + [str(temp_file)]
+            cmd = (
+                [self.alignment_tool] + self.alignment_params.split() + [str(temp_file)]
+            )
 
             with open(output_file, "w") as out_handle:
                 subprocess.run(
-                    cmd, stdout=out_handle, stderr=subprocess.PIPE, text=True, check=True
+                    cmd,
+                    stdout=out_handle,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    check=True,
                 )
 
             logger.info(f"Aligned sequences: {output_file}")
@@ -240,7 +246,9 @@ class ConsensusBuilder:
 
             # Build consensus
             consensus_record = self.build_consensus(
-                alignment_output, consensus_output, consensus_id=f"{sample_name}_consensus"
+                alignment_output,
+                consensus_output,
+                consensus_id=f"{sample_name}_consensus",
             )
 
             return consensus_record

@@ -10,8 +10,4 @@ from .statistics_collector import StatisticsCollector
 from .html_template_generator import HTMLTemplateGenerator
 from .report_coordinator import ReportCoordinator
 
-__all__ = [
-    'StatisticsCollector',
-    'HTMLTemplateGenerator', 
-    'ReportCoordinator'
-]
+__all__ = ["StatisticsCollector", "HTMLTemplateGenerator", "ReportCoordinator"]

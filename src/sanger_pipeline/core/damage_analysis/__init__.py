@@ -9,10 +9,10 @@ from .statistical_analyzer import StatisticalAnalyzer
 from .damage_visualizer import DamageVisualizer
 
 __all__ = [
-    'DamageAnalysisResult',
-    'SequenceQuality', 
-    'SequenceAligner',
-    'DamageCalculator',
-    'StatisticalAnalyzer',
-    'DamageVisualizer'
+    "DamageAnalysisResult",
+    "SequenceQuality",
+    "SequenceAligner",
+    "DamageCalculator",
+    "StatisticalAnalyzer",
+    "DamageVisualizer",
 ]

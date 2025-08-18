@@ -10,9 +10,9 @@ from Bio import SeqIO
 from ..utils.helpers import validate_file_exists
 from .damage_analysis import (
     DamageAnalysisResult,
-    DamageCalculator, 
+    DamageCalculator,
     StatisticalAnalyzer,
-    DamageVisualizer
+    DamageVisualizer,
 )
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class ADNADamageAnalyzer:
         """
         self.terminal_length = terminal_length
         self.min_damage_threshold = min_damage_threshold
-        
+
         # Initialize components
         self.damage_calculator = DamageCalculator(terminal_length)
         self.statistical_analyzer = StatisticalAnalyzer(min_damage_threshold)
@@ -64,15 +64,16 @@ class ADNADamageAnalyzer:
             str(ref_seq.seq), str(query_seq.seq)
         )
 
-        logger.info(f"Analyzed damage for {sequence_file.name}: "
-                   f"5' damage = {damage_stats['damage_5_prime']:.3f}, "
-                   f"3' damage = {damage_stats['damage_3_prime']:.3f}")
+        logger.info(
+            f"Analyzed damage for {sequence_file.name}: "
+            f"5' damage = {damage_stats['damage_5_prime']:.3f}, "
+            f"3' damage = {damage_stats['damage_3_prime']:.3f}"
+        )
 
         return damage_stats
 
     def bootstrap_damage_analysis(
-        self, sequence_files: List[Path], reference_file: Path, 
-        iterations: int = 10000
+        self, sequence_files: List[Path], reference_file: Path, iterations: int = 10000
     ) -> Dict:
         """
         Perform bootstrap analysis for damage assessment.
@@ -101,7 +102,9 @@ class ADNADamageAnalyzer:
             raise ValueError("No valid sequences for bootstrap analysis")
 
         # Use statistical analyzer component
-        return self.statistical_analyzer.bootstrap_damage_analysis(all_damage_data, iterations)
+        return self.statistical_analyzer.bootstrap_damage_analysis(
+            all_damage_data, iterations
+        )
 
     def assess_damage_indicators(self, bootstrap_results: Dict) -> Dict:
         """
@@ -118,7 +121,7 @@ class ADNADamageAnalyzer:
     def assess_authenticity(self, bootstrap_results: Dict) -> Dict:
         """
         Assess aDNA authenticity (backward compatibility alias).
-        
+
         Args:
             bootstrap_results: Results from bootstrap analysis
 
@@ -128,8 +131,7 @@ class ADNADamageAnalyzer:
         return self.assess_damage_indicators(bootstrap_results)
 
     def generate_damage_plots(
-        self, sequence_files: List[Path], reference_file: Path, 
-        output_dir: Path
+        self, sequence_files: List[Path], reference_file: Path, output_dir: Path
     ) -> None:
         """
         Generate damage pattern visualization plots.
@@ -143,14 +145,15 @@ class ADNADamageAnalyzer:
 
         # Analyze all sequences for positional damage
         all_positional_damage = []
-        
+
         for seq_file in sequence_files:
             try:
-                damage_profile = self._calculate_positional_damage(seq_file, reference_file)
-                all_positional_damage.append({
-                    "sample": seq_file.stem,
-                    "profile": damage_profile
-                })
+                damage_profile = self._calculate_positional_damage(
+                    seq_file, reference_file
+                )
+                all_positional_damage.append(
+                    {"sample": seq_file.stem, "profile": damage_profile}
+                )
             except Exception as e:
                 logger.warning(f"Failed to generate damage profile for {seq_file}: {e}")
                 continue
@@ -161,13 +164,11 @@ class ADNADamageAnalyzer:
 
         # Use visualizer component to create plots
         self.visualizer.create_smile_plot(
-            all_positional_damage, 
-            output_dir / "damage_smile_plot.png"
+            all_positional_damage, output_dir / "damage_smile_plot.png"
         )
-        
+
         self.visualizer.create_summary_damage_plot(
-            all_positional_damage, 
-            output_dir / "damage_summary.png"
+            all_positional_damage, output_dir / "damage_summary.png"
         )
 
         logger.info(f"Damage plots saved to {output_dir}")

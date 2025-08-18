@@ -21,7 +21,11 @@ class AB1Converter:
     Converter for AB1 files to FASTA format with quality filtering.
     """
 
-    def __init__(self, min_quality: int = DEFAULT_MIN_QUALITY, min_sequence_length: int = DEFAULT_MIN_SEQUENCE_LENGTH):
+    def __init__(
+        self,
+        min_quality: int = DEFAULT_MIN_QUALITY,
+        min_sequence_length: int = DEFAULT_MIN_SEQUENCE_LENGTH,
+    ):
         """
         Initialize AB1 converter.
 
@@ -79,15 +83,19 @@ class AB1Converter:
             True if sequence is long enough, False otherwise
         """
         # Count only valid nucleotides (not N's or gaps)
-        valid_bases = sum(1 for base in sequence if base in 'ATCG')
+        valid_bases = sum(1 for base in sequence if base in "ATCG")
         is_valid = valid_bases >= self.min_sequence_length
-        
+
         if not is_valid:
-            logger.warning(f"Sequence too short: {valid_bases} valid bases (minimum: {self.min_sequence_length})")
-        
+            logger.warning(
+                f"Sequence too short: {valid_bases} valid bases (minimum: {self.min_sequence_length})"
+            )
+
         return is_valid
 
-    def filter_by_quality(self, record: SeqRecord, output_file: Path) -> Optional[SeqRecord]:
+    def filter_by_quality(
+        self, record: SeqRecord, output_file: Path
+    ) -> Optional[SeqRecord]:
         """
         Filter sequence by quality scores, replacing low-quality bases with 'N',
         and check minimum sequence length.
@@ -107,17 +115,23 @@ class AB1Converter:
 
         # Filter low quality bases
         filtered_seq = "".join(
-            [base if qual >= self.min_quality else "N" for base, qual in zip(sequence, qualities)]
+            [
+                base if qual >= self.min_quality else "N"
+                for base, qual in zip(sequence, qualities)
+            ]
         )
 
         # Check minimum sequence length (count only valid nucleotides)
-        valid_bases = sum(1 for base in filtered_seq if base in 'ATCG')
+        valid_bases = sum(1 for base in filtered_seq if base in "ATCG")
         if valid_bases < self.min_sequence_length:
-            logger.warning(f"Sequence {record.id} too short after filtering: {valid_bases} valid bases (minimum: {self.min_sequence_length})")
+            logger.warning(
+                f"Sequence {record.id} too short after filtering: {valid_bases} valid bases (minimum: {self.min_sequence_length})"
+            )
             return None
 
         # Create filtered record
         from Bio.Seq import Seq
+
         filtered_record = record[:]
         filtered_record.seq = Seq(filtered_seq)
 
@@ -126,12 +140,17 @@ class AB1Converter:
 
         # Write filtered FASTA
         SeqIO.write(filtered_record, output_file, "fasta")
-        logger.info(f"Wrote filtered FASTA file: {output_file} ({valid_bases} valid bases)")
+        logger.info(
+            f"Wrote filtered FASTA file: {output_file} ({valid_bases} valid bases)"
+        )
 
         return filtered_record
 
     def generate_quality_plot(
-        self, record: SeqRecord, output_file: Path, figure_size: Tuple[int, int] = (12, 4)
+        self,
+        record: SeqRecord,
+        output_file: Path,
+        figure_size: Tuple[int, int] = (12, 4),
     ) -> None:
         """
         Generate quality score plot for the sequence.
@@ -171,7 +190,11 @@ class AB1Converter:
         logger.info(f"Generated quality plot: {output_file}")
 
     def process_ab1_file(
-        self, ab1_file: Path, fasta_output: Path, filtered_output: Path, plot_output: Path
+        self,
+        ab1_file: Path,
+        fasta_output: Path,
+        filtered_output: Path,
+        plot_output: Path,
     ) -> Tuple[SeqRecord, Optional[SeqRecord]]:
         """
         Complete processing of an AB1 file: convert, filter, and plot.
@@ -197,8 +220,10 @@ class AB1Converter:
         self.generate_quality_plot(raw_record, plot_output)
 
         if filtered_record is None:
-            logger.warning(f"Sequence from {ab1_file} excluded due to insufficient length")
+            logger.warning(
+                f"Sequence from {ab1_file} excluded due to insufficient length"
+            )
         else:
             logger.info(f"Completed processing: {ab1_file}")
-        
+
         return raw_record, filtered_record

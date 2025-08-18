@@ -7,8 +7,14 @@ This module provides a clean, modular CLI structure using separate command modul
 import click
 
 from .commands import (
-    run_pipeline, status, convert_ab1, convert_to_hsd,
-    analyze_damage, damage_summary, hsd, generate_report
+    run_pipeline,
+    status,
+    convert_ab1,
+    convert_to_hsd,
+    analyze_damage,
+    damage_summary,
+    hsd,
+    generate_report,
 )
 from ..utils.helpers import setup_logging
 

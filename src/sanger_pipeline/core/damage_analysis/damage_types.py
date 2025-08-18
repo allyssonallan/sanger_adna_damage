@@ -7,12 +7,14 @@ from typing import TypedDict
 
 class SequenceQuality(TypedDict):
     """Quality metrics for a sequence."""
+
     n_percentage: float
     valid_percentage: float
 
 
 class DamageAnalysisResult(TypedDict):
     """Results from damage analysis."""
+
     damage_5_prime: float
     damage_3_prime: float
     total_bases: int

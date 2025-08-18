@@ -8,17 +8,18 @@ from .adna_damage_analyzer import ADNADamageAnalyzer
 # Import SangerPipeline separately to avoid circular imports
 try:
     from .pipeline import SangerPipeline
+
     __all__ = [
         "AB1Converter",
-        "ConsensusBuilder", 
+        "ConsensusBuilder",
         "QualityFilter",
         "SangerPipeline",
-        "ADNADamageAnalyzer"
+        "ADNADamageAnalyzer",
     ]
 except ImportError:
     __all__ = [
         "AB1Converter",
-        "ConsensusBuilder", 
+        "ConsensusBuilder",
         "QualityFilter",
-        "ADNADamageAnalyzer"
+        "ADNADamageAnalyzer",
     ]

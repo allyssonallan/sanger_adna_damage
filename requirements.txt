@@ -1,6 +1,6 @@
 # Python dependencies for AB1 Sequencing QC Pipeline
 # Core dependencies
-biopython>=1.85
+biopython>=1.83
 pandas>=2.0
 matplotlib>=3.0
 numpy>=1.20.0

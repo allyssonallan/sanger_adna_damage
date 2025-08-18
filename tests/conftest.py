@@ -37,12 +37,9 @@ def sample_config():
         "damage": {
             "threshold": 0.05,
             "bootstrap_iterations": 1000,
-            "significance_level": 0.05
+            "significance_level": 0.05,
         },
-        "bootstrap": {
-            "iterations": 1000,
-            "confidence_level": 0.95
-        },
+        "bootstrap": {"iterations": 1000, "confidence_level": 0.95},
         "output": {
             "directories": {
                 "fasta": "fasta",
@@ -51,9 +48,9 @@ def sample_config():
                 "plots": "plots",
                 "aligned": "aligned",
                 "final": "final",
-                "logs": "logs"
+                "logs": "logs",
             }
-        }
+        },
     }
 
 
@@ -92,11 +89,11 @@ TAGCTAGCTAGCTAG
 def mock_config_file(temp_dir, sample_config):
     """Create a mock configuration file."""
     import yaml
-    
+
     config_file = temp_dir / "test_config.yaml"
-    with open(config_file, 'w') as f:
+    with open(config_file, "w") as f:
         yaml.dump(sample_config, f)
-    
+
     return config_file
 
 
@@ -105,20 +102,16 @@ def clean_environment():
     """Ensure clean environment for tests."""
     # Store original environment
     original_env = os.environ.copy()
-    
+
     # Clean up any pipeline-specific environment variables
-    env_vars_to_clean = [
-        'SANGER_CONFIG',
-        'SANGER_DEBUG',
-        'SANGER_LOG_LEVEL'
-    ]
-    
+    env_vars_to_clean = ["SANGER_CONFIG", "SANGER_DEBUG", "SANGER_LOG_LEVEL"]
+
     for var in env_vars_to_clean:
         if var in os.environ:
             del os.environ[var]
-    
+
     yield
-    
+
     # Restore original environment
     os.environ.clear()
     os.environ.update(original_env)
@@ -127,12 +120,8 @@ def clean_environment():
 # Pytest configuration for test selection
 def pytest_configure(config):
     """Configure pytest with custom markers."""
-    config.addinivalue_line(
-        "markers", "unit: marks tests as unit tests"
-    )
-    config.addinivalue_line(
-        "markers", "integration: marks tests as integration tests"
-    )
+    config.addinivalue_line("markers", "unit: marks tests as unit tests")
+    config.addinivalue_line("markers", "integration: marks tests as integration tests")
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
     )
@@ -148,10 +137,12 @@ def pytest_collection_modifyitems(config, items):
     """Modify test collection to add markers automatically."""
     for item in items:
         # Add 'unit' marker to tests that don't have integration/slow markers
-        if not any(marker.name in ['integration', 'slow', 'requires_external'] 
-                  for marker in item.iter_markers()):
+        if not any(
+            marker.name in ["integration", "slow", "requires_external"]
+            for marker in item.iter_markers()
+        ):
             item.add_marker(pytest.mark.unit)
-        
+
         # Add 'slow' marker to tests with 'integration' marker
         if item.get_closest_marker("integration"):
             item.add_marker(pytest.mark.slow)
