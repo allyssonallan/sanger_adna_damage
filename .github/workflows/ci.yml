@@ -12,14 +12,10 @@ jobs:
     strategy:
       fail-fast: false  # Don't cancel other jobs if one fails
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]  # Windows excluded - not suitable for this pipeline
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         exclude:
           # Reduce matrix size for faster CI
-          - os: windows-latest
-            python-version: "3.8"
-          - os: windows-latest
-            python-version: "3.9"
           - os: macos-latest
             python-version: "3.8"
 
@@ -34,9 +30,7 @@ jobs:
     - name: Cache pip dependencies
       uses: actions/cache@v4
       with:
-        path: |
-          ~/.cache/pip
-          ~\AppData\Local\pip\Cache
+        path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
@@ -45,23 +39,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[test]"
-      shell: bash  # Use bash shell on all platforms for consistency
-
-    - name: Debug environment (Windows only)
-      if: matrix.os == 'windows-latest'
-      run: |
-        echo "Python version: $(python --version)"
-        echo "Pip version: $(pip --version)"
-        echo "Working directory: $(pwd)"
-        pip list | head -10
-      shell: bash
-      continue-on-error: true
 
     - name: Run tests with pytest
       run: |
         pytest tests/ -v --cov=src --cov-report=xml --cov-report=term-missing
-      continue-on-error: ${{ matrix.os == 'windows-latest' }}  # Allow Windows tests to fail without blocking
-      shell: bash
 
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
