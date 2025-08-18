@@ -1,0 +1,88 @@
+name: Windows Debug
+
+on:
+  workflow_dispatch:  # Manual trigger only
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/windows-debug.yml'
+
+jobs:
+  windows-debug:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Debug Python environment
+      run: |
+        python --version
+        python -c "import sys; print('Python executable:', sys.executable)"
+        python -c "import platform; print('Platform:', platform.platform())"
+        pip --version
+      shell: bash
+
+    - name: Install dependencies step by step
+      run: |
+        echo "Upgrading pip..."
+        python -m pip install --upgrade pip
+        
+        echo "Installing setuptools and wheel..."
+        pip install setuptools wheel
+        
+        echo "Installing test dependencies..."
+        pip install pytest pytest-cov pytest-xdist
+        
+        echo "Installing project in editable mode..."
+        pip install -e . --verbose
+      shell: bash
+
+    - name: List installed packages
+      run: pip list
+      shell: bash
+
+    - name: Run basic import test
+      run: |
+        python -c "import sanger_pipeline; print('✅ Package imports successfully')"
+      shell: bash
+      continue-on-error: true
+
+    - name: Run simple smoke test
+      run: |
+        python run_tests.py --mode imports
+      shell: bash
+      continue-on-error: true
+
+    - name: Run minimal pytest
+      run: |
+        pytest tests/test_integration_smoke.py -v --no-cov
+      shell: bash
+      continue-on-error: true
+
+    - name: Debug test environment
+      if: failure()
+      run: |
+        echo "=== Environment Variables ==="
+        env | grep -E "(PYTHON|PATH)" || true
+        
+        echo "=== Python path ==="
+        python -c "import sys; print('\n'.join(sys.path))"
+        
+        echo "=== Working directory ==="
+        pwd
+        ls -la
+        
+        echo "=== src directory ==="
+        ls -la src/ || echo "src directory not found"
+        
+        echo "=== Package installation status ==="
+        pip show sanger-adna-damage || echo "Package not installed"
+      shell: bash
