@@ -35,6 +35,19 @@ test-imports: ## Quick import check
 lint: ## Run linting (flake8)
 	$(PYTHON) -m flake8 $(SRC) $(TESTS)
 
+lint-report: ## Generate detailed linting report
+	$(PYTHON) -m flake8 $(SRC) $(TESTS) --count --statistics --tee --output-file=flake8-report.txt
+
+lint-critical: ## Check only critical linting errors
+	$(PYTHON) -m flake8 $(SRC) $(TESTS) --select=E9,F63,F7,F82 --show-source
+
+lint-fix: ## Auto-fix common linting issues
+	@echo "Fixing trailing whitespace and blank lines..."
+	$(PYTHON) -c "import os, re; [open(f, 'w').write(re.sub(r'[ \t]+$$', '', open(f).read(), flags=re.MULTILINE)) for root, dirs, files in os.walk('src') for f in [os.path.join(root, file) for file in files if file.endswith('.py')] if os.path.isfile(f)]"
+	$(PYTHON) -c "import os, re; [open(f, 'w').write(re.sub(r'[ \t]+$$', '', open(f).read(), flags=re.MULTILINE)) for root, dirs, files in os.walk('tests') for f in [os.path.join(root, file) for file in files if file.endswith('.py')] if os.path.isfile(f)]"
+	@echo "Running black to fix formatting..."
+	$(PYTHON) -m black $(SRC) $(TESTS) run_tests.py setup.py
+
 format: ## Format code with black
 	$(PYTHON) -m black $(SRC) $(TESTS) run_tests.py setup.py
 
