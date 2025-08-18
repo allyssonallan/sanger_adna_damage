@@ -51,7 +51,14 @@ def run_smoke_tests():
         pytest_available = False
 
     if pytest_available:
-        cmd = [sys.executable, "-m", "pytest", "tests/test_integration_smoke.py", "-v"]
+        cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "tests/test_integration_smoke.py",
+            "-v",
+            "--no-cov",  # Disable coverage for smoke tests
+        ]
         try:
             result = subprocess.run(cmd, check=False)
             return result.returncode
