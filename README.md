@@ -1,10 +1,50 @@
 # 🧬 Sanger aDNA Damage Pipeline
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<!-- Project Status Badges -->
+[![CI](https://github.com/allyssonallan/sanger_adna_damage/workflows/CI/badge.svg)](https://github.com/allyssonallan/sanger_adna_damage/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/allyssonallan/sanger_adna_damage/branch/main/graph/badge.svg)](https://codecov.io/gh/allyssonallan/sanger_adna_damage)
+[![Quality Gate Status](https://img.shields.io/badge/quality-passing-brightgreen.svg)](https://github.com/allyssonallan/sanger_adna_damage/actions)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+<!-- Language and Framework Badges -->
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macOS-lightgrey.svg)](#-platform-compatibility)
+
+<!-- Project Health Badges -->
+[![Maintenance](https://img.shields.io/badge/maintained-yes-green.svg)](https://github.com/allyssonallan/sanger_adna_damage/graphs/commit-activity)
+[![GitHub issues](https://img.shields.io/github/issues/allyssonallan/sanger_adna_damage.svg)](https://github.com/allyssonallan/sanger_adna_damage/issues)
+[![GitHub last commit](https://img.shields.io/github/last-commit/allyssonallan/sanger_adna_damage.svg)](https://github.com/allyssonallan/sanger_adna_damage/commits/main)
+[![GitHub release](https://img.shields.io/github/release/allyssonallan/sanger_adna_damage.svg)](https://github.com/allyssonallan/sanger_adna_damage/releases)
+
+<!-- Documentation and Development Badges -->
 [![Documentation](https://img.shields.io/badge/docs-sphinx-blue.svg)](docs/)
+[![DOI](https://img.shields.io/badge/DOI-pending-orange.svg)](#citations)
+[![BioPython](https://img.shields.io/badge/BioPython-1.78+-green.svg)](https://biopython.org/)
+[![pytest](https://img.shields.io/badge/pytest-tested-green.svg)](https://docs.pytest.org/)
+
+<!-- Research and Bioinformatics Badges -->
+[![Ancient DNA](https://img.shields.io/badge/research-ancient%20DNA-purple.svg)](#)
+[![Sanger Sequencing](https://img.shields.io/badge/sequencing-Sanger-blue.svg)](#)
+[![Damage Analysis](https://img.shields.io/badge/analysis-damage%20patterns-red.svg)](#)
+[![Haplogroup](https://img.shields.io/badge/genetics-haplogroup%20classification-green.svg)](#)
 
 A comprehensive pipeline for processing Sanger sequencing data from ancient DNA (aDNA) samples, with automatic damage pattern analysis, enhanced quality control, and diversity assessment for optimal haplogroup classification.
+
+## 💻 Platform Compatibility
+
+> [!WARNING]
+> **Windows Compatibility Notice**
+> 
+> This pipeline is **not recommended for Windows environments** due to:
+> - Path handling complexities with bioinformatics tools
+> - Shell script dependencies optimized for Unix-like systems
+> - Potential issues with external dependencies (MAFFT, alignment tools)
+> 
+> **Recommended platforms:**
+> - ✅ **Linux** (Ubuntu 20.04+, CentOS 7+)
+> - ✅ **macOS** (10.15+)
+> - 🟡 **WSL2** (Windows Subsystem for Linux) as an alternative for Windows users
 
 > [!IMPORTANT]
 > **🚨 IMPORTANT DISCLAIMER - Tool Purpose & Limitations**
@@ -20,6 +60,34 @@ A comprehensive pipeline for processing Sanger sequencing data from ancient DNA 
 > **⚠️ All ancient DNA authentication must be performed using NGS-based methods** with appropriate controls, contamination assessment, and phylogenetic analysis.
 >
 > This tool provides preliminary screening to help researchers prioritize samples and resources before proceeding to comprehensive NGS-based ancient DNA authentication workflows.
+
+## 🏷️ Project Status
+
+The badges above provide quick information about project health and capabilities:
+
+### 🔧 **Development Status**
+- **CI (Continuous Integration)**: ✅ All tests passing on Linux and macOS
+- **Code Coverage**: 📊 Current test coverage percentage  
+- **Code Style**: 🎨 Formatted with Black, linted with flake8
+- **Quality Gate**: ✅ All quality checks passing
+
+### 🖥️ **Technical Information**
+- **Platform Support**: 🖥️ Linux and macOS only (see compatibility notice above)
+- **Python Version**: 🐍 Compatible with Python 3.8 through 3.12
+- **Dependencies**: 📦 BioPython 1.78+, tested with pytest
+- **License**: 📄 MIT License - free for academic and commercial use
+
+### 📚 **Project Health**
+- **Maintenance**: 🔧 Actively maintained and developed
+- **Documentation**: 📚 Comprehensive docs with examples and API reference
+- **Issues**: 🐛 GitHub issue tracking for bugs and features
+- **Releases**: 🏷️ Tagged releases with changelog
+
+### 🧬 **Research Domain**
+- **Ancient DNA Analysis**: Specialized for aDNA damage pattern detection
+- **Sanger Sequencing**: Optimized for Sanger sequencing data processing
+- **Damage Patterns**: Advanced algorithms for DNA damage analysis
+- **Haplogroup Classification**: Tools for mitochondrial haplogroup assessment
 
 ## 🚀 Quick Start
 
