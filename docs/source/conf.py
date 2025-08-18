@@ -25,8 +25,15 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
     'myst_parser',
-    'sphinxcontrib.mermaid',
 ]
+
+# Try to add mermaid extension if available
+try:
+    import importlib.util
+    if importlib.util.find_spec('sphinxcontrib.mermaid') is not None:
+        extensions.append('sphinxcontrib.mermaid')
+except ImportError:
+    print("Warning: sphinxcontrib.mermaid not available. Mermaid diagrams will not be rendered.")
 
 templates_path = ['_templates']
 exclude_patterns = []
