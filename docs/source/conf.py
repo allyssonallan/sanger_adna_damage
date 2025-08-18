@@ -25,6 +25,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
     'myst_parser',
+    'sphinxcontrib.mermaid',
 ]
 
 templates_path = ['_templates']

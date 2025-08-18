@@ -7,6 +7,38 @@ All notable changes to the Sanger DNA Damage Analysis Pipeline will be documente
 The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_,
 and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+Version 2.0.0 - 2025-08-18
+==========================
+
+Enhanced Quality Control Release
+
+Added
+-----
+* **Enhanced Quality Control Pipeline** - Comprehensive aDNA-specific quality control system
+* **aDNA Sequence Cleaner** - Advanced removal of ancient DNA artifacts and ambiguous nucleotides
+* **Improved FASTA to HSD Converter** - Enhanced conversion with configurable quality thresholds
+* **HSD Diversity Analyzer** - Comprehensive genetic diversity assessment and sample comparison
+* **Quality Filtering** - Advanced filtering with 70% default quality threshold
+* **Sample Prioritization** - Automated identification of highest-quality samples
+* **Diversity Metrics** - Detailed reports on variant counts, sample similarity, and genetic diversity
+* **Quality Flags** - Automatic detection of potential quality issues and low-quality samples
+* **Enhanced Documentation** - Complete documentation for new quality control features
+
+Changed
+-------
+* **Pipeline Output Structure** - Enhanced output with quality-controlled files
+* **HSD Conversion** - Improved regional hybrid method now default (52.4 avg variants/sample)
+* **Quality Assessment** - More sophisticated quality metrics and reporting
+* **Sample Processing** - Better handling of ancient DNA sequences and artifacts
+* **Documentation** - Updated with enhanced pipeline workflows and best practices
+
+Fixed
+-----
+* **Quality Control** - Improved artifact detection and removal for aDNA samples
+* **Variant Calling** - Better handling of ambiguous nucleotides and alignment artifacts
+* **Sample Retention** - Optimal balance between quality and sample retention (~60% retention)
+* **Performance** - Optimized processing for large sample sets
+
 Unreleased
 ==========
 

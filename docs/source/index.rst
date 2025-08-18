@@ -15,7 +15,8 @@ Sanger DNA Damage Analysis Pipeline
    :alt: Documentation
 
 A comprehensive, modular pipeline for processing Sanger sequencing AB1 files, including quality control, 
-alignment, consensus building, and ancient DNA damage analysis.
+alignment, consensus building, ancient DNA damage analysis, and enhanced quality control for optimal 
+haplogroup classification.
 
 .. important::
    **IMPORTANT DISCLAIMER - Tool Purpose & Limitations**
@@ -35,6 +36,9 @@ alignment, consensus building, and ancient DNA damage analysis.
 🚀 Features
 ===========
 
+Core Pipeline
+-------------
+
 * **Modular Architecture**: Well-organized codebase with clear separation of concerns
 * **Quality Control**: Convert AB1 files with Phred quality filtering and visualization
 * **Sequence Processing**: Align forward/reverse reads and build consensus sequences
@@ -44,6 +48,23 @@ alignment, consensus building, and ancient DNA damage analysis.
 * **Beautiful QC Reports**: Interactive HTML reports with charts, tables, and analysis summaries
 * **Command Line Interface**: Easy-to-use CLI for all pipeline operations
 * **Extensible Design**: Easy to add new analysis modules and features
+
+Enhanced Quality Control (NEW!)
+-------------------------------
+
+* **aDNA Sequence Cleaning**: Advanced removal of ancient DNA artifacts and ambiguous nucleotides
+* **Quality Filtering**: Configurable quality thresholds with 70% default for optimal results
+* **Diversity Analysis**: Comprehensive genetic diversity assessment and sample comparison
+* **Sample Prioritization**: Automated identification of highest-quality samples for downstream analysis
+* **Quality Metrics**: Detailed reports on variant counts, sample similarity, and potential quality issues
+* **Artifact Detection**: Advanced detection and removal of alignment and sequencing artifacts
+
+HSD Conversion Methods
+---------------------
+
+* **Regional Hybrid Method**: Optimal approach with 52.4 average variants per sample (recommended)
+* **Direct Method**: Alternative approach with 66.0 average variants per sample  
+* **Enhanced Converter**: Improved quality control with artifact detection and filtering
 
 📚 Documentation Contents
 =========================
@@ -61,6 +82,8 @@ alignment, consensus building, and ancient DNA damage analysis.
    :caption: User Guide
    
    tutorials/index
+   enhanced_quality_control
+   pipeline_workflow
    howto/index
    cli_reference
 
@@ -130,26 +153,105 @@ Basic Usage
 📊 Pipeline Overview
 ===================
 
-The Sanger DNA Damage Analysis Pipeline processes AB1 sequencing files through several stages:
-
-1. **AB1 Conversion**: Convert binary AB1 files to FASTA format with quality filtering
-2. **Sequence Alignment**: Align forward and reverse reads using MAFFT
-3. **Consensus Building**: Generate consensus sequences for each HVS region
-4. **HVS Region Merging**: Intelligently combine available HVS regions
-5. **Damage Analysis**: Detect and assess ancient DNA damage patterns
-6. **Report Generation**: Create comprehensive QC reports with visualizations
+The pipeline processes Sanger sequencing data through multiple quality-controlled stages with comprehensive branching for different quality control approaches and output formats:
 
 .. mermaid::
 
-   graph TD
-       A[AB1 Files] --> B[AB1 Conversion]
-       B --> C[Quality Filtering]
-       C --> D[Sequence Alignment]
-       D --> E[Consensus Building]
-       E --> F[HVS Region Merging]
-       F --> G[Damage Analysis]
-       G --> H[QC Report Generation]
-       H --> I[Final Results]
+   graph TB
+       subgraph "Input Stage"
+           A[📁 AB1 Files<br/>- Forward reads<br/>- Reverse reads<br/>- HVS1/2/3 regions]
+       end
+       
+       subgraph "Core Processing"
+           B[🔄 AB1 Conversion<br/>Quality filtering<br/>Phred scores ≥ Q20/Q30]
+           C[🧹 Quality Control<br/>Length filtering<br/>Base quality assessment]
+           D[🔗 Consensus Building<br/>Forward/reverse alignment<br/>Per HVS region]
+           E[🧩 Region Merging<br/>Combine HVS regions<br/>Sample consolidation]
+       end
+       
+       subgraph "Analysis & QC"
+           F[🧬 Damage Analysis<br/>C→T, G→A transitions<br/>Bootstrap statistics<br/>P-value calculation]
+           G[📊 Interactive Reports<br/>HTML dashboard<br/>Quality visualizations<br/>Statistical summaries]
+       end
+       
+       subgraph "Enhanced Quality Control (v2.0+)"
+           H[✨ Enhanced Pipeline Entry]
+           I[🧪 aDNA Sequence Cleaner<br/>- Remove artifacts<br/>- Resolve ambiguous bases<br/>- Filter poly-N regions<br/>- Quality scoring]
+           J[📝 Improved HSD Converter<br/>- Reference alignment<br/>- Quality metrics<br/>- Variant filtering<br/>- Statistical validation]
+           K[📈 Diversity Analyzer<br/>- Haplogroup diversity<br/>- Sample comparison<br/>- Quality assessment<br/>- Priority ranking]
+       end
+       
+       subgraph "Output Options"
+           L1[📋 Standard HSD<br/>Basic variant calling<br/>Regional/Direct methods]
+           L2[🎯 Enhanced HSD<br/>Quality-filtered variants<br/>Statistical confidence<br/>Diversity metrics]
+           L3[📊 Quality Reports<br/>Interactive dashboards<br/>Damage plots<br/>Statistical summaries]
+           L4[📁 Processed Sequences<br/>FASTA files<br/>Consensus sequences<br/>Quality scores]
+       end
+       
+       subgraph "Configuration Variables"
+           V1[⚙️ Quality Thresholds<br/>--min-quality: 15-30<br/>--min-length: 30-100bp<br/>--quality-filter: 0.6-0.8]
+           V2[🔧 Pipeline Options<br/>--alignment-tool: mafft/muscle<br/>--damage-threshold: 0.02<br/>--bootstrap-iterations: 1000]
+           V3[📂 I/O Directories<br/>--input-dir: AB1 files<br/>--output-dir: Results<br/>--config: YAML settings]
+       end
+       
+       %% Main workflow
+       A --> B
+       B --> C
+       C --> D
+       D --> E
+       E --> F
+       F --> G
+       
+       %% Enhanced workflow branch
+       E -.-> H
+       H --> I
+       I --> J
+       J --> K
+       
+       %% Output generation
+       E --> L1
+       F --> L3
+       G --> L3
+       J --> L2
+       K --> L2
+       D --> L4
+       E --> L4
+       
+       %% Configuration influences
+       V1 -.-> B
+       V1 -.-> C
+       V1 -.-> I
+       V2 -.-> D
+       V2 -.-> F
+       V2 -.-> J
+       V3 -.-> A
+       V3 -.-> L1
+       V3 -.-> L2
+       V3 -.-> L3
+       V3 -.-> L4
+       
+       %% Alternative paths
+       G -.-> L1
+       L3 -.-> H
+       
+       %% Styling
+       style A fill:#e3f2fd
+       style H fill:#fff3e0
+       style L2 fill:#e8f5e8
+       style F fill:#fce4ec
+       style K fill:#f3e5f5
+       
+       classDef inputNode fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+       classDef coreNode fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+       classDef enhancedNode fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+       classDef outputNode fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+       classDef configNode fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+       
+       class A inputNode
+       class B,C,D,E coreNode  
+       class H,I,J,K enhancedNode
+       class L1,L2,L3,L4 outputNode
+       class V1,V2,V3 configNode
 
 🔬 Ancient DNA Analysis
 ======================

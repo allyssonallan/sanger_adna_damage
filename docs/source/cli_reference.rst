@@ -688,4 +688,80 @@ The CLI respects several environment variables:
            output_dir = output_base / sample_dir.name
            run_pipeline(sample_dir, output_dir, config)
 
-This comprehensive CLI reference covers all available commands and options for the Sanger DNA Damage Analysis Pipeline. Use it as a quick reference while working with the pipeline, or for developing automated workflows and scripts.
+🆕 Enhanced Quality Control Tools
+=================================
+
+.. versionadded:: 2.0
+
+The enhanced quality control tools provide advanced processing for ancient DNA samples.
+
+enhanced_hsd_converter.py
+-------------------------
+
+Applies comprehensive quality control to pipeline outputs.
+
+**Syntax**:
+
+.. code-block:: bash
+
+   python enhanced_hsd_converter.py
+
+**Description**:
+
+This tool automatically applies enhanced quality control to the most recent pipeline output:
+
+1. **Combines consensus sequences** from the pipeline output directory
+2. **Cleans sequences** using aDNA-specific algorithms
+3. **Converts to HSD format** with quality filtering
+4. **Performs diversity analysis** with comprehensive reporting
+
+**Output Files**:
+
+* ``{output}_final_cleaned.fasta``: Cleaned consensus sequences
+* ``{output}_final_high_quality.hsd``: High-quality HSD file
+* Console output with diversity analysis report
+
+**Quality Control Features**:
+
+* **Artifact Removal**: Eliminates common aDNA artifacts
+* **Quality Filtering**: 70% quality threshold by default
+* **Diversity Analysis**: Comprehensive genetic diversity assessment
+* **Sample Prioritization**: Identifies highest-quality samples
+
+Manual Quality Control Tools
+----------------------------
+
+For advanced users who want to run quality control steps individually:
+
+aDNA Sequence Cleaner
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from sanger_pipeline.utils.adna_sequence_cleaner import aDNASequenceCleaner
+   
+   cleaner = aDNASequenceCleaner(min_length=50, min_quality=0.6)
+   cleaned_sequences = cleaner.clean_fasta_file("input.fasta", "cleaned.fasta")
+
+Improved HSD Converter
+~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from sanger_pipeline.utils.improved_fasta_to_hsd_converter import ImprovedFastaToHSDConverter
+   
+   converter = ImprovedFastaToHSDConverter(min_quality_threshold=0.7)
+   converter.convert_fasta_to_hsd("cleaned.fasta", "output.hsd")
+
+HSD Diversity Analyzer
+~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from sanger_pipeline.utils.hsd_diversity_analyzer import HSDDiversityAnalyzer
+   
+   analyzer = HSDDiversityAnalyzer()
+   samples = analyzer.parse_hsd_file("output.hsd")
+   diversity_report = analyzer.analyze_diversity(samples)
+
+This comprehensive CLI reference covers all available commands and options for the Sanger DNA Damage Analysis Pipeline, including the new enhanced quality control features. Use it as a quick reference while working with the pipeline, or for developing automated workflows and scripts.

@@ -2,7 +2,79 @@
 Quick Start Guide
 ================
 
-This guide will get you up and running with the Sanger DNA Damage Analysis Pipeline in just a few minutes.
+This guidStep 3: Run the Pipeline
+------------------------
+
+**Standard Pipeline:**
+
+.. code-block:: bash
+
+   # Run the complete pipeline
+   python scripts/run_pipeline.py run-pipeline 
+       --input-dir ./input 
+       --output-dir ./output_q30 
+       --quality 30 
+       --verbose
+
+**Enhanced Quality Control Pipeline (Recommended for aDNA):**
+
+.. code-block:: bash
+
+   # Step 1: Run standard pipeline
+   python scripts/run_pipeline.py run-pipeline 
+       --input-dir ./input 
+       --output-dir ./output_q30 
+       --quality 30 
+       --verbose
+
+   # Step 2: Apply enhanced quality control
+   python enhanced_hsd_converter.py
+
+   # Results will include:
+   # - output_q30_final_cleaned.fasta: Cleaned sequences
+   # - output_q30_final_high_quality.hsd: High-quality HSD file
+   # - Diversity analysis report
+
+Step 4: Generate Reports
+------------------------
+
+.. code-block:: bash
+
+   # Generate comprehensive HTML report
+   python generate_report.py ./output_q30
+
+🆕 Enhanced Quality Control Features
+===================================
+
+The enhanced pipeline provides advanced quality control specifically designed for ancient DNA:
+
+What It Does
+-----------
+
+* **Artifact Removal**: Eliminates common aDNA sequencing artifacts
+* **Quality Filtering**: Applies 70% quality threshold by default
+* **Diversity Analysis**: Comprehensive genetic diversity assessment
+* **Sample Prioritization**: Identifies highest-quality samples automatically
+
+When to Use
+----------
+
+Use the enhanced pipeline when:
+
+* Working with ancient DNA samples
+* Need optimal HSD files for haplogroup analysis
+* Want comprehensive quality assessment
+* Require sample prioritization for downstream analysis
+
+Quality Metrics
+--------------
+
+The enhanced pipeline provides detailed metrics:
+
+* **Variant Statistics**: Range and distribution of variants per sample
+* **Sample Similarity**: Genetic similarity analysis between samples  
+* **Quality Flags**: Automatic detection of potential quality issues
+* **Retention Rates**: Percentage of samples passing quality filtersl get you up and running with the Sanger DNA Damage Analysis Pipeline in just a few minutes.
 
 .. warning::
    **Important: Tool Purpose & Scope**
