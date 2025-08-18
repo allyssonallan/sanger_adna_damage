@@ -3,14 +3,14 @@
 Generate a beautiful QC report for the Sanger pipeline.
 
 Usage:
-    python generate_report.py [output_directory]
+    python -m sanger_pipeline.scripts.generate_report [output_directory]
 """
 
 import sys
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from sanger_pipeline.utils.report_generator import QCReportGenerator
 

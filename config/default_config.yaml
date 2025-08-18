@@ -53,3 +53,11 @@ patterns:
   reverse_pattern: "*-R_filtered.fasta"
   consensus_pattern: "*_consensus.fasta"
   merged_pattern: "*_merged.fasta"
+
+# HSD conversion settings for haplogroup analysis
+hsd_conversion:
+  enabled: true                    # Enable/disable HSD conversion step
+  method: "regional"               # Method: regional, direct, or aligned
+  reference_file: "ref/rCRS.fasta" # Reference sequence file
+  max_variants_per_region: 35     # Maximum variants allowed per HVS region
+  output_filename: "haplogroup_analysis.hsd"

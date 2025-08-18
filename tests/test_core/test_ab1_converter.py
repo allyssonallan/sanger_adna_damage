@@ -41,7 +41,7 @@ class TestAB1Converter:
             for base, qual in zip(sequence, qualities)
         ])
         
-        expected = "ANCNNNC"  # Only bases with quality >= 20 kept
+        expected = "ANCNANCG"  # Only bases with quality >= 20 kept: A(25), N(15), C(30), N(18), A(22), N(19), C(35), G(21)
         assert filtered_seq == expected
         
     def test_quality_threshold_validation(self):

@@ -35,19 +35,54 @@ pip install -r requirements.txt
 ### Basic Usage
 
 ```bash
-# Run the complete pipeline
+# 1. Run the complete pipeline (processes AB1 files → consensus sequences)
+python -m sanger_pipeline.cli.main run-pipeline \
+    --input-dir ./input \
+    --output-dir ./output_min30_q30 \
+    --min-quality 30 \
+    --min-sequence-length 30
+
+# 2. Generate HTML QC report with damage analysis
+python -m sanger_pipeline.cli.main generate-report output_min30_q30
+
+# 3. Convert consensus sequences to HSD format for haplogroup analysis
+python -m sanger_pipeline.cli.main hsd enhanced \
+    --consensus-dir output_min30_q30/consensus/ \
+    --output my_samples.hsd \
+    --method aligned
+
+# 4. Test primer pair detection
+python tests/test_primer_pairs.py input/sample.ab1 --verbose
+```
+
+**Complete Workflow for Both Outputs:**
+
+```bash
+# Step 1: Process your AB1 files
 python -m src.sanger_pipeline.cli.main run-pipeline \
     --input-dir ./input \
-    --output-dir ./output
+    --output-dir ./output_min30_q30 \
+    --config config/default_config.yaml
 
+# Step 2: Generate comprehensive HTML report
+python generate_report.py output_min30_q30
+
+# Step 3: Create HSD file for HaploGrep
+python convert_hvs_consensus_to_hsd.py output_min30_q30/consensus/ haplogroups.hsd
+
+# Your results:
+# - HTML Report: output_min30_q30/reports/sanger_qc_report_YYYYMMDD_HHMMSS.html
+# - HSD File: haplogroups.hsd (ready for HaploGrep upload)
+```
+
+**Single Sample Processing:**
+
+```bash
 # Convert single AB1 file
 python -m src.sanger_pipeline.cli.main convert-ab1 \
     sample.ab1 output.fasta \
-    --min-quality 20 \
+    --min-quality 30 \
     --min-sequence-length 30
-
-# Generate QC report
-python generate_report.py
 ```
 
 ## 📚 Documentation
