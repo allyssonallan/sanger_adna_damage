@@ -24,9 +24,10 @@ make quality
 ## 🧪 Testing Strategy
 
 ### Test Organization
+
 Tests are organized following Python best practices:
 
-```
+``` bash
 tests/
 ├── conftest.py                 # Shared fixtures and configuration
 ├── test_integration_smoke.py   # Integration/smoke tests
@@ -36,6 +37,7 @@ tests/
 ```
 
 ### Test Categories
+
 Tests are marked with pytest markers:
 
 - `@pytest.mark.unit` - Fast unit tests (< 1 second)
@@ -90,6 +92,7 @@ make quality
 ```
 
 ### Pre-commit Hooks
+
 ```bash
 # Install pre-commit hooks
 make pre-commit-install
@@ -115,6 +118,7 @@ make pre-commit-run
 4. **`Makefile`** - Development task automation
 
 ### Pytest Configuration
+
 Key settings in `pyproject.toml`:
 
 ```toml
@@ -136,7 +140,8 @@ addopts = [
 ## 🏗️ Project Structure Best Practices
 
 ### Source Code Organization
-```
+
+``` bash
 src/sanger_pipeline/          # Source code in src layout
 ├── __init__.py
 ├── cli/                      # Command-line interface
@@ -156,19 +161,23 @@ src/sanger_pipeline/          # Source code in src layout
 ## 🔄 Development Workflow
 
 ### Daily Development
+
 1. Activate virtual environment: `source venv/bin/activate`
 2. Run fast tests frequently: `make test-fast`
 3. Format code before committing: `make format`
 4. Run quality checks: `make quality`
 
 ### Before Committing
+
 1. Run full test suite: `make test`
 2. Check coverage: `make test-cov`
 3. Run quality checks: `make quality`
 4. Let pre-commit hooks run automatically
 
 ### Continuous Integration
+
 The project includes GitHub Actions CI that:
+
 - Tests on multiple Python versions (3.8-3.12)
 - Tests on multiple OS (Ubuntu, macOS, Windows)
 - Runs linting and type checking
@@ -178,11 +187,13 @@ The project includes GitHub Actions CI that:
 ## 📈 Coverage and Quality Metrics
 
 ### Coverage Targets
+
 - **Unit tests**: Aim for 90%+ coverage
 - **Integration tests**: Focus on critical paths
 - **Overall project**: Target 80%+ coverage
 
 ### Quality Metrics
+
 - **Linting**: All code should pass flake8
 - **Type checking**: All code should pass mypy
 - **Formatting**: All code should be Black-formatted
@@ -210,6 +221,135 @@ make clean              # Clean up build artifacts
 make docs               # Build documentation
 make build              # Build package
 ```
+
+## 🌐 Browser Application Development
+
+### In-Browser Pipeline Features
+
+The project includes a modern web-based interface for the Sanger aDNA damage analysis pipeline. The browser application provides a complete alternative to the command-line interface.
+
+#### Architecture
+
+```text
+browser/
+├── index.html           # Main application page
+├── css/
+│   └── main.css        # Styling and responsive design
+└── js/
+    ├── main.js         # Application coordination and initialization
+    ├── core.js         # Core utilities and data management
+    ├── pipeline.js     # Processing pipeline implementation
+    ├── ui-manager.js   # User interface and interactions
+    ├── abif-parser.js  # ABIF file format parser
+    ├── chromatogram.js # Chromatogram visualization
+    ├── sequence-processor.js # Sequence processing algorithms
+    └── export-manager.js     # Data export functionality
+```
+
+#### File Loading System (🚧 In Development)
+
+The browser application features multiple file loading methods to handle various use cases and browser limitations:
+
+##### 1. **📁 Traditional File Picker**
+
+- Standard HTML5 file input with multiple selection
+- Accept filter for `.ab1` files
+- Comprehensive error handling and validation
+- Compatible with all modern browsers
+
+##### 2. **📂 Drag & Drop Interface**
+
+- Large visual drop zone with hover feedback
+- Automatic file type filtering
+- Visual animations and user feedback
+- Click-to-open file picker functionality
+
+##### 3. **🗂️ File System Access API**
+
+- Modern browser API (Chrome/Edge 86+)
+- Direct file system access with proper permissions
+- Enhanced file selection with native OS dialogs
+- Fallback detection for unsupported browsers
+
+##### 4. **📂 HTTP Server Loading**
+
+- Direct loading from project's `/input` directory
+- Modal selection interface for choosing specific files
+- Local development server with CORS support
+- Bypasses browser file security restrictions
+
+##### 5. **🎯 Demo Data Generator**
+
+- Synthetic sequence data for testing
+- Bypasses file system entirely
+- Immediate testing capability
+- Pre-configured sample data sets
+
+##### 6. **📋 Paste Support**
+
+- Automatic clipboard file detection
+- Background processing without UI interaction
+- Supports files copied from file managers
+- Cross-platform compatibility
+
+#### Testing and Debugging Tools
+
+##### File System Diagnostics
+
+```javascript
+// Test file loading system
+app.testFileLoading();
+
+// Load demo data for testing
+app.loadDemoData();
+
+// Open File System API dialog
+app.openFileSystemDialog();
+```
+
+##### Development Server
+
+```bash
+# Start local development server
+python3 scripts/serve_files.py
+
+# Access browser application
+open http://localhost:8080/browser/
+```
+
+#### Browser Compatibility
+
+| Feature | Chrome | Firefox | Safari | Edge |
+|---------|---------|---------|---------|-------|
+| File Picker | ✅ | ✅ | ✅ | ✅ |
+| Drag & Drop | ✅ | ✅ | ✅ | ✅ |
+| File System API | ✅ | ❌ | ❌ | ✅ |
+| Paste Support | ✅ | ✅ | ⚠️ | ✅ |
+| HTTP Loading | ✅ | ✅ | ✅ | ✅ |
+
+#### Current Development Status
+
+- ✅ **Core Pipeline**: Complete ES6 modular architecture
+- ✅ **File Parsing**: ABIF format parser with trace data extraction
+- ✅ **UI Components**: Responsive design with theme support
+- ✅ **Data Export**: ZIP archive generation with multiple formats
+- 🚧 **File Loading**: Multiple loading methods (in testing)
+- 🚧 **Chromatogram Display**: Canvas-based visualization
+- 📋 **Advanced Features**: Damage analysis visualization (planned)
+
+#### Known Issues and Limitations
+
+1. **File System Access**: Limited to Chromium-based browsers
+2. **Large Files**: Memory constraints for very large AB1 files
+3. **CORS Restrictions**: Local file access requires development server
+4. **Mobile Support**: Touch interactions need optimization
+
+#### Future Enhancements
+
+- **WebAssembly Integration**: For performance-critical operations
+- **Progressive Web App**: Offline capability and app-like experience
+- **Real-time Collaboration**: Multi-user analysis sessions
+- **Cloud Storage Integration**: Direct loading from cloud services
 
 ## 🔍 Troubleshooting
 

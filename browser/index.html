@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sanger aDNA Damage – Browser Pipeline</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+<main class="container">
+  <header>
+    <div class="headbar">
+      <div class="brand">
+        <h1>Sanger aDNA Damage (in-browser)</h1>
+      </div>
+      <div class="header-right">
+        <div class="logo-container">
+          <div id="logoRowTop" class="logo-row"></div>
+          <div id="logoRowBottom" class="logo-row"></div>
+        </div>
+        <div class="theme">
+          <span class="small">Light</span>
+          <input type="checkbox" id="themeToggle">
+          <span class="small">Dark</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div>
+      <h2>Ancient DNA damage analysis pipeline</h2>
+      <p class="lead">Upload <kbd>.ab1</kbd> Sanger files and analyze C→T / G→A damage patterns in browser.</p>
+      <div class="upload-controls">
+        <label for="fileInput" class="file">
+          📁 Choose AB1 files
+          <input type="file" id="fileInput" multiple accept=".ab1">
+        </label>
+        <button class="secondary" id="listUploaded" title="Show all uploaded AB1 files">
+          📋 List Uploaded Files
+        </button>
+        <button class="secondary" id="listTempFiles" title="Show temporary files from each processing step">
+          🗂️ List Temp Files
+        </button>
+      </div>
+      <div class="drag-drop-zone" id="dragDropZone">
+        <div class="drag-drop-content">
+          <div class="drag-drop-icon">📂</div>
+          <p><strong>Drag & Drop AB1 files here</strong></p>
+          <p class="small muted">or use the file chooser above</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <button class="primary" id="runAll">🚀 Run All Stages</button>
+      <p class="small muted" style="margin-top:12px">
+        Or run individual pipeline stages below after uploading files.
+      </p>
+      <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="secondary" id="testFileLoading" style="font-size: 12px; padding: 6px 10px;">
+          🧪 Test File System
+        </button>
+        <button class="secondary" id="loadSampleFiles" style="font-size: 12px; padding: 6px 10px;">
+          📂 Load Sample Files
+        </button>
+        <button class="secondary" id="loadDemoData" style="font-size: 12px; padding: 6px 10px;">
+          🎯 Load Demo Data
+        </button>
+        <button class="secondary" id="openFileSystemDialog" style="font-size: 12px; padding: 6px 10px;">
+          🗂️ File System API
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pipeline Stages -->
+  <section class="pipeline">
+    <div class="grid cols-4">
+      <!-- Stage 1: FASTA -->
+      <div class="stage">
+        <h3>1) FASTA (raw)</h3>
+        <div class="meta">
+          <span class="badge" id="fastaCount">0 files</span>
+        </div>
+        <div><strong>Raw sequences</strong><br><small class="muted">Direct AB1 → FASTA conversion.</small></div>
+        <footer>
+          <button class="secondary" data-stage="fasta">Process</button>
+          <button class="secondary" data-exp="fasta">Export</button>
+        </footer>
+      </div>
+
+      <!-- Stage 2: Filtered -->
+      <div class="stage">
+        <h3>2) Filtered (Q30+)</h3>
+        <div class="meta">
+          <span class="badge" id="filteredCount">0 files</span>
+        </div>
+        <div><strong>Quality filtered</strong><br><small class="muted">Keep bases Q≥30, replace low-quality with N.</small></div>
+        <footer>
+          <button class="secondary" data-stage="filter">Process</button>
+          <button class="secondary" data-exp="filtered">Export</button>
+        </footer>
+      </div>
+
+      <!-- Stage 3: Aligned -->
+      <div class="stage">
+        <h3>3) Aligned (F+R)</h3>
+        <div class="meta">
+          <span class="badge" id="alignedCount">0</span>
+        </div>
+        <div><strong>Overlap consensus</strong><br><small class="muted">Forward + reverse alignment per region.</small></div>
+        <footer>
+          <button class="secondary" data-stage="align">Process</button>
+          <button class="secondary" data-exp="aligned">Export</button>
+        </footer>
+      </div>
+
+      <!-- Stage 4: Consensus -->
+      <div class="stage">
+        <h3>4) Consensus</h3>
+        <div class="meta">
+          <span class="badge" id="consensusCount">0</span>
+        </div>
+        <div><strong>Final sequences</strong><br><small class="muted">Per-region consensus sequences.</small></div>
+        <footer>
+          <button class="secondary" data-exp="consensus">Export</button>
+          <button class="ghost" id="exportSummary">Summary (.csv)</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="grid cols-4" style="margin-top:16px">
+      <!-- Stage 5: Final -->
+      <div class="stage">
+        <h3>5) Final (merged regions)</h3>
+        <div class="meta">
+          <span class="badge" id="finalCount">0 files</span>
+        </div>
+        <div><strong>Merged sequences</strong><br><small class="muted">HVS1+HVS2+HVS3 per sample.</small></div>
+        <footer>
+          <button class="secondary" data-exp="final">Export</button>
+        </footer>
+      </div>
+
+      <!-- Stage 6: Plots -->
+      <div class="stage">
+        <h3>6) Plots (QC)</h3>
+        <div class="meta">
+          <span class="badge" id="plotsCount">0</span>
+        </div>
+        <div><strong>Quality plots</strong><br><small class="muted">Chromatogram snapshots for QC.</small></div>
+        <footer>
+          <button class="secondary" data-exp="plots">Export</button>
+        </footer>
+      </div>
+
+      <!-- Stage 7: Damage -->
+      <div class="stage">
+        <h3>7) Damage analysis</h3>
+        <div class="meta">
+          <span class="badge" id="damageCount">0</span>
+        </div>
+        <div><strong>Damage</strong><br><small class="muted">5' C→T & 3' G→A rates + bootstrap.</small></div>
+        <footer>
+          <button class="secondary" data-stage="damage">Process</button>
+          <button class="secondary" data-exp="damage_analysis">Export</button>
+        </footer>
+      </div>
+
+      <!-- Stage 8: HSD -->
+      <div class="stage">
+        <h3>8) HSD preview (haplotype-like index)</h3>
+        <div class="meta">
+          <span class="badge" id="hsdCount">preview</span>
+        </div>
+        <div><strong>Haplogroup format</strong><br><small class="muted">Simple preview for external tools.</small></div>
+        <footer>
+          <button class="secondary" id="exportHSD">Export HSD</button>
+        </footer>
+      </div>
+    </div>
+  </section>
+
+  <!-- Viewers -->
+  <section class="viewer">
+    <div class="panel">
+      <h2>Chromatogram &amp; Sequence</h2>
+      <canvas id="chrom"></canvas>
+      <div style="display:flex; gap:10px; align-items:center; margin-top:10px">
+        <select id="traceSelect"></select>
+        <button class="ghost" id="dlPNG">Save PNG</button>
+      </div>
+      <pre class="seq" id="seqText"></pre>
+    </div>
+    
+    <div class="panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2>Per-sample statistics</h2>
+        <button class="secondary" id="viewAllFiles">View All Files</button>
+      </div>
+      <table class="table" id="statsTable">
+        <thead>
+          <tr><th>Sample</th><th>Region</th><th>Dir</th><th>Len</th><th>Ns</th><th>Q30%</th><th>5′C→T</th><th>3′G→A</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="statsEmpty" style="text-align: center; color: var(--muted); padding: 40px; display: block;">
+        <p>No files processed yet. Upload AB1 files to see statistics.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="app">
+    <button id="reset" class="ghost">Reset</button>
+  </footer>
+</main>
+
+<!-- File Summary Modal -->
+<div id="fileSummaryModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);">
+  <div class="modal-content" style="background-color: var(--bg); margin: 5% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 800px; max-height: 80%; overflow-y: auto;">
+    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e5e7eb; padding-bottom: 16px;">
+      <h3 style="margin: 0; color: var(--ink);">Loaded Files Summary</h3>
+      <span class="close" style="color: var(--muted); font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+    </div>
+    
+    <div class="modal-body">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+        <div class="stat-box" style="text-align: center; padding: 12px; background: var(--panel); border-radius: 6px;">
+          <div style="font-size: 24px; font-weight: bold; color: var(--accent);" id="fileCount">0</div>
+          <div style="font-size: 12px; color: var(--muted);">Total Files</div>
+        </div>
+        <div class="stat-box" style="text-align: center; padding: 12px; background: var(--panel); border-radius: 6px;">
+          <div style="font-size: 24px; font-weight: bold; color: var(--good);" id="validCount">0</div>
+          <div style="font-size: 12px; color: var(--muted);">Valid Files</div>
+        </div>
+        <div class="stat-box" style="text-align: center; padding: 12px; background: var(--panel); border-radius: 6px;">
+          <div style="font-size: 24px; font-weight: bold; color: var(--ring);" id="processedCount">0</div>
+          <div style="font-size: 12px; color: var(--muted);">Processed</div>
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="fileSearch" placeholder="🔍 Search files..." style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+      </div>
+      
+      <div id="loadedFilesList" style="max-height: 400px; overflow-y: auto;">
+        <!-- Files will be dynamically populated here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript Modules -->
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>
