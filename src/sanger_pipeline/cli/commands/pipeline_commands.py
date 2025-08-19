@@ -113,7 +113,7 @@ def convert_ab1(
 
         # Generate plot if requested
         if generate_plot:
-            plot_path = Path(output_fasta).with_suffix('.png')
+            plot_path = Path(output_fasta).with_suffix(".png")
             converter.generate_quality_plot(result, plot_path)
             click.echo(f"Generated quality plot: {plot_path}")
 

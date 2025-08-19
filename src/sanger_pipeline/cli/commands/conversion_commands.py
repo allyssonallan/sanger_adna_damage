@@ -7,7 +7,10 @@ This module contains CLI commands for converting AB1 files and other format conv
 import click
 from pathlib import Path
 
-from ...core.enhanced_ab1_converter_fixed import EnhancedAB1Converter as AB1Converter, EnhancedAB1Converter
+from ...core.enhanced_ab1_converter_fixed import (
+    EnhancedAB1Converter as AB1Converter,
+    EnhancedAB1Converter,
+)
 from ...core.primer_config import parse_cli_primers
 
 
@@ -43,15 +46,19 @@ def convert_ab1(
         if min_quality > 0:
             processed_path = output_path.with_suffix("").with_suffix("_processed.fasta")
             plot_path = output_path.with_suffix(".png") if generate_plot else None
-            
+
             # Use enhanced processing for quality filtering
-            original_record, processed_record, stats = converter.process_ab1_file_enhanced(
-                Path(ab1_file), output_path, processed_path, plot_path
+            original_record, processed_record, stats = (
+                converter.process_ab1_file_enhanced(
+                    Path(ab1_file), output_path, processed_path, plot_path
+                )
             )
-            
+
             if processed_record is not None:
                 click.echo(f"Generated processed FASTA: {processed_path}")
-                click.echo(f"Processing stats: {stats.get('final_length', 'N/A')} final bases")
+                click.echo(
+                    f"Processing stats: {stats.get('final_length', 'N/A')} final bases"
+                )
             else:
                 click.echo(
                     f"Sequence excluded due to insufficient length (minimum: {min_sequence_length} valid bases)"
@@ -84,54 +91,54 @@ def convert_ab1(
 )
 @click.option("--generate-plot", is_flag=True, help="Generate quality plot")
 @click.option(
-    "--primer-config", 
-    type=click.Path(exists=True), 
-    help="YAML file containing primer configurations"
+    "--primer-config",
+    type=click.Path(exists=True),
+    help="YAML file containing primer configurations",
 )
 @click.option(
-    "--primer-forward", 
-    help="Custom forward primers (format: region1:sequence1,region2:sequence2)"
+    "--primer-forward",
+    help="Custom forward primers (format: region1:sequence1,region2:sequence2)",
 )
 @click.option(
-    "--primer-reverse", 
-    help="Custom reverse primers (format: region1:sequence1,region2:sequence2)"
+    "--primer-reverse",
+    help="Custom reverse primers (format: region1:sequence1,region2:sequence2)",
 )
 @click.option(
-    "--disable-primer-removal", 
-    is_flag=True, 
-    help="Disable automatic primer removal"
+    "--disable-primer-removal", is_flag=True, help="Disable automatic primer removal"
 )
 @click.option(
-    "--adna-mode/--modern-mode", 
-    default=True, 
-    help="Enable ancient DNA mode with lower primer matching thresholds"
+    "--adna-mode/--modern-mode",
+    default=True,
+    help="Enable ancient DNA mode with lower primer matching thresholds",
 )
 @click.option(
-    "--show-primer-info", 
-    is_flag=True, 
-    help="Display detailed primer detection information"
+    "--show-primer-info",
+    is_flag=True,
+    help="Display detailed primer detection information",
 )
 def convert_ab1_enhanced(
-    ab1_file, 
-    output_fasta, 
-    min_quality, 
-    min_sequence_length, 
+    ab1_file,
+    output_fasta,
+    min_quality,
+    min_sequence_length,
     generate_plot,
     primer_config,
     primer_forward,
     primer_reverse,
     disable_primer_removal,
     adna_mode,
-    show_primer_info
+    show_primer_info,
 ):
     """Enhanced AB1 to FASTA conversion with primer removal and ancient DNA support."""
-    click.echo(f"Converting AB1 file with enhanced features: {ab1_file} -> {output_fasta}")
-    
+    click.echo(
+        f"Converting AB1 file with enhanced features: {ab1_file} -> {output_fasta}"
+    )
+
     try:
         # Parse custom primers from CLI
         custom_forward = parse_cli_primers(primer_forward) if primer_forward else None
         custom_reverse = parse_cli_primers(primer_reverse) if primer_reverse else None
-        
+
         # Initialize enhanced converter
         converter = EnhancedAB1Converter(
             min_quality=min_quality,
@@ -140,51 +147,59 @@ def convert_ab1_enhanced(
             adna_damage_mode=adna_mode,
             custom_primers_forward=custom_forward,
             custom_primers_reverse=custom_reverse,
-            primer_config_file=Path(primer_config) if primer_config else None
+            primer_config_file=Path(primer_config) if primer_config else None,
         )
-        
+
         # Show primer configuration if requested
         if show_primer_info:
             click.echo("\n📋 Primer Configuration:")
             for region, primer_data in converter.primers.items():
                 click.echo(f"  {region}:")
                 click.echo(f"    Forward:  {primer_data.get('forward', 'N/A')}")
-                click.echo(f"    Reverse:  {primer_data.get('reverse_original', 'N/A')}")
-                if 'description' in primer_data:
+                click.echo(
+                    f"    Reverse:  {primer_data.get('reverse_original', 'N/A')}"
+                )
+                if "description" in primer_data:
                     click.echo(f"    Description: {primer_data['description']}")
             click.echo()
-        
+
         # Create output paths
         ab1_path = Path(ab1_file)
         output_path = Path(output_fasta)
-        processed_output = output_path.with_suffix('.processed.fasta')
-        plot_output = output_path.with_suffix('.png')
-        
+        processed_output = output_path.with_suffix(".processed.fasta")
+        plot_output = output_path.with_suffix(".png")
+
         # Convert with enhanced features
         original_record, processed_record, stats = converter.process_ab1_file_enhanced(
             ab1_path, output_path, processed_output, plot_output
         )
-        
+
         # Display processing statistics
         click.echo("\n📊 Processing Statistics:")
         click.echo(f"  Original length: {stats.get('original_length', 'N/A')} bases")
         click.echo(f"  Final length: {stats.get('final_length', 'N/A')} bases")
         click.echo(f"  HVS region detected: {stats.get('hvs_region', 'Unknown')}")
         click.echo(f"  Primers removed: {stats.get('primers_removed', False)}")
-        
-        if stats.get('primers_removed'):
-            primer_info = stats.get('primer_removal_info', {})
-            click.echo(f"    Forward removed: {primer_info.get('forward_removed', False)}")
-            click.echo(f"    Reverse removed: {primer_info.get('reverse_removed', False)}")
-            click.echo(f"    Length reduction: {primer_info.get('length_reduction', 0)} bases")
-        
+
+        if stats.get("primers_removed"):
+            primer_info = stats.get("primer_removal_info", {})
+            click.echo(
+                f"    Forward removed: {primer_info.get('forward_removed', False)}"
+            )
+            click.echo(
+                f"    Reverse removed: {primer_info.get('reverse_removed', False)}"
+            )
+            click.echo(
+                f"    Length reduction: {primer_info.get('length_reduction', 0)} bases"
+            )
+
         click.echo(f"  Quality trimmed: {stats.get('quality_trimmed', (0, 0))}")
-        
+
         if generate_plot:
             click.echo(f"Generated quality plot: {plot_output}")
-        
+
         click.echo("\n✅ Enhanced conversion completed successfully")
-        
+
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         raise click.Abort()
@@ -192,19 +207,15 @@ def convert_ab1_enhanced(
 
 @click.command()
 @click.option(
-    "--primer-config", 
-    type=click.Path(exists=True), 
-    help="YAML file containing primer configurations to validate"
+    "--primer-config",
+    type=click.Path(exists=True),
+    help="YAML file containing primer configurations to validate",
 )
-@click.option(
-    "--show-details", 
-    is_flag=True, 
-    help="Show detailed primer information"
-)
+@click.option("--show-details", is_flag=True, help="Show detailed primer information")
 def validate_primers(primer_config, show_details):
     """Validate primer configuration file and show primer information."""
     from ...core.primer_config import PrimerConfig, validate_primer_file
-    
+
     if not primer_config:
         # Use default config
         click.echo("🔍 Validating default primer configuration...")
@@ -212,88 +223,107 @@ def validate_primers(primer_config, show_details):
     else:
         click.echo(f"🔍 Validating primer configuration: {primer_config}")
         valid_file, file_issues = validate_primer_file(Path(primer_config))
-        
+
         if not valid_file:
             click.echo("❌ Configuration file validation failed:")
             for issue in file_issues:
                 click.echo(f"  - {issue}")
             return
-        
+
         config = PrimerConfig(Path(primer_config))
-    
+
     # Validate primers
     valid, issues = config.validate_primers()
-    
+
     if valid:
         click.echo("✅ All primers are valid!")
     else:
         click.echo("⚠️  Primer validation issues found:")
         for issue in issues:
             click.echo(f"  - {issue}")
-    
+
     # Show primer details
     if show_details:
         click.echo("\n📋 Primer Configuration Details:")
         click.echo("=" * 50)
-        
+
         for region in config.get_regions():
             primer_data = config.get_primers_for_region(region)
             if primer_data:
                 click.echo(f"\n🧬 {region}:")
                 click.echo(f"  Forward:  {primer_data.get('forward', 'N/A')}")
                 click.echo(f"  Reverse:  {primer_data.get('reverse', 'N/A')}")
-                click.echo(f"  Length:   F={len(primer_data.get('forward', ''))} / R={len(primer_data.get('reverse', ''))}")
-                if 'description' in primer_data:
+                click.echo(
+                    f"  Length:   F={len(primer_data.get('forward', ''))} / R={len(primer_data.get('reverse', ''))}"
+                )
+                if "description" in primer_data:
                     click.echo(f"  Description: {primer_data['description']}")
-        
+
         # Show matching parameters
         params = config.matching_parameters
         click.echo("\n⚙️  Matching Parameters:")
-        click.echo(f"  Similarity threshold: {params.get('similarity_threshold', 'N/A')}")
-        click.echo(f"  aDNA threshold: {params.get('adna_similarity_threshold', 'N/A')}")
+        click.echo(
+            f"  Similarity threshold: {params.get('similarity_threshold', 'N/A')}"
+        )
+        click.echo(
+            f"  aDNA threshold: {params.get('adna_similarity_threshold', 'N/A')}"
+        )
         click.echo(f"  Max mismatches: {params.get('max_mismatches', 'N/A')}")
         click.echo(f"  Search window: {params.get('search_window', 'N/A')}")
-    
+
     click.echo(f"\n📊 Total regions configured: {len(config.get_regions())}")
 
 
 @click.command()
 @click.argument("output_file", type=click.Path())
 @click.option(
-    "--template-type", 
-    type=click.Choice(['basic', 'comprehensive']), 
-    default='basic',
-    help="Template type: basic (common regions) or comprehensive (with examples)"
+    "--template-type",
+    type=click.Choice(["basic", "comprehensive"]),
+    default="basic",
+    help="Template type: basic (common regions) or comprehensive (with examples)",
 )
 def generate_primer_config(output_file, template_type):
     """Generate a primer configuration template file."""
     from ...core.primer_config import PrimerConfig
-    
+
     output_path = Path(output_file)
-    
+
     if output_path.exists():
         if not click.confirm(f"File {output_file} already exists. Overwrite?"):
             click.echo("Operation cancelled.")
             return
-    
+
     try:
-        if template_type == 'basic':
+        if template_type == "basic":
             # Create basic template with default primers
             config = PrimerConfig()
             config.save_to_yaml(output_path)
-            click.echo(f"✅ Basic primer configuration template saved to: {output_file}")
+            click.echo(
+                f"✅ Basic primer configuration template saved to: {output_file}"
+            )
         else:
             # Create comprehensive template with examples
             import shutil
-            template_source = Path(__file__).parent.parent.parent.parent.parent / 'config' / 'primers.yaml'
+
+            template_source = (
+                Path(__file__).parent.parent.parent.parent.parent
+                / "config"
+                / "primers.yaml"
+            )
             shutil.copy(template_source, output_path)
-            click.echo(f"✅ Comprehensive primer configuration template saved to: {output_file}")
-        
+            click.echo(
+                f"✅ Comprehensive primer configuration template saved to: {output_file}"
+            )
+
         click.echo("\n📝 Next steps:")
         click.echo("1. Edit the primer sequences to match your laboratory primers")
-        click.echo("2. Validate the configuration with: validate-primers --primer-config <file>")
-        click.echo("3. Use in conversion with: convert-ab1-enhanced --primer-config <file> <input> <output>")
-        
+        click.echo(
+            "2. Validate the configuration with: validate-primers --primer-config <file>"
+        )
+        click.echo(
+            "3. Use in conversion with: convert-ab1-enhanced --primer-config <file> <input> <output>"
+        )
+
     except Exception as e:
         click.echo(f"❌ Error generating template: {e}", err=True)
         raise click.Abort()

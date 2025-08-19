@@ -33,27 +33,31 @@ class PrimerHandler:
         """
         # Initialize primer configuration system
         self.primer_config = PrimerConfig(primer_config_file)
-        
+
         # Add custom primers if provided
         if custom_primers_forward or custom_primers_reverse:
-            self.primer_config.add_custom_primers(custom_primers_forward, custom_primers_reverse)
-        
+            self.primer_config.add_custom_primers(
+                custom_primers_forward, custom_primers_reverse
+            )
+
         # Get primer pairs for compatibility
         self.primer_pairs = self._convert_config_to_pairs()
-        
-        logger.info(f"Initialized primer handler with {len(self.primer_pairs)} primer pairs")
+
+        logger.info(
+            f"Initialized primer handler with {len(self.primer_pairs)} primer pairs"
+        )
 
     def _convert_config_to_pairs(self) -> Dict[str, Dict[str, str]]:
         """Convert primer config to the format expected by existing code."""
         pairs = {}
-        
+
         for region, primer_data in self.primer_config.get_all_primers().items():
             pairs[region] = {
                 "forward": primer_data.get("forward", ""),
                 "reverse": primer_data.get("reverse", ""),
-                "reverse_complement": primer_data.get("reverse_complement", "")
+                "reverse_complement": primer_data.get("reverse_complement", ""),
             }
-        
+
         return pairs
 
     def detect_primer_orientation(self, sequence: str, region: str) -> Dict[str, Any]:

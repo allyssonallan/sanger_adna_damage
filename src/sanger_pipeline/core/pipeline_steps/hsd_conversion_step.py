@@ -53,11 +53,15 @@ class HSDConversionStep:
         try:
             # Initialize improved regional HSD converter
             reference_file = hsd_config.get("reference_file", "ref/rCRS.fasta")
-            use_alignment = hsd_config.get("use_alignment", True)  # Default to alignment mode
+            use_alignment = hsd_config.get(
+                "use_alignment", True
+            )  # Default to alignment mode
 
             from ...utils.regional_hsd_converter import RegionalHSDConverter
 
-            converter = RegionalHSDConverter(reference_file, use_alignment=use_alignment)
+            converter = RegionalHSDConverter(
+                reference_file, use_alignment=use_alignment
+            )
 
             # Process consensus files
             logger.info(

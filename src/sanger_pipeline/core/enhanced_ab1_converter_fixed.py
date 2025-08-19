@@ -80,22 +80,26 @@ class EnhancedAB1Converter:
 
         # Initialize primer configuration system
         self.primer_config = PrimerConfig(primer_config_file)
-        
+
         # Add custom primers if provided
         if custom_primers_forward or custom_primers_reverse:
-            self.primer_config.add_custom_primers(custom_primers_forward, custom_primers_reverse)
-        
+            self.primer_config.add_custom_primers(
+                custom_primers_forward, custom_primers_reverse
+            )
+
         # Validate primer configuration
         valid, issues = self.primer_config.validate_primers()
         if not valid:
             logger.warning("Primer validation issues found:")
             for issue in issues:
                 logger.warning(f"  - {issue}")
-        
+
         # Get primers for backward compatibility
         self.primers = self._setup_primer_pairs_from_config()
-        
-        logger.info(f"Initialized with {len(self.primers)} primer pairs from configuration")
+
+        logger.info(
+            f"Initialized with {len(self.primers)} primer pairs from configuration"
+        )
         """
         Initialize enhanced AB1 converter.
 
@@ -136,41 +140,47 @@ class EnhancedAB1Converter:
 
         # Initialize primer configuration system
         self.primer_config = PrimerConfig(primer_config_file)
-        
+
         # Add custom primers if provided
         if custom_primers_forward or custom_primers_reverse:
-            self.primer_config.add_custom_primers(custom_primers_forward, custom_primers_reverse)
-        
+            self.primer_config.add_custom_primers(
+                custom_primers_forward, custom_primers_reverse
+            )
+
         # Validate primer configuration
         valid, issues = self.primer_config.validate_primers()
         if not valid:
             logger.warning("Primer validation issues found:")
             for issue in issues:
                 logger.warning(f"  - {issue}")
-        
+
         # Get primers for backward compatibility
         self.primers = self._setup_primer_pairs_from_config()
-        
-        logger.info(f"Initialized with {len(self.primers)} primer pairs from configuration")
+
+        logger.info(
+            f"Initialized with {len(self.primers)} primer pairs from configuration"
+        )
 
     def _setup_primer_pairs_from_config(self) -> Dict[str, Dict[str, str]]:
         """
         Set up primer pairs from the primer configuration system.
-        
+
         Returns:
             Dictionary with primer information compatible with existing code
         """
         primers = {}
-        
+
         for region, primer_data in self.primer_config.get_all_primers().items():
             primers[region] = {
                 "forward": primer_data.get("forward", ""),
                 "reverse_complement": primer_data.get("reverse_complement", ""),
                 "reverse_original": primer_data.get("reverse", ""),
                 "region": region,
-                "description": primer_data.get("description", f"Primers for {region} region")
+                "description": primer_data.get(
+                    "description", f"Primers for {region} region"
+                ),
             }
-        
+
         return primers
 
     def _reverse_complement(self, sequence: str) -> str:

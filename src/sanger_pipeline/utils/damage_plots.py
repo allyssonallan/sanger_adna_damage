@@ -43,7 +43,7 @@ class DamagePlotGenerator:
         """Generate comprehensive damage plots for report embedding."""
         if not self.output_dir:
             return {}
-        
+
         coordinator = DamagePlotCoordinator(self.output_dir)
         return coordinator.generate_all_plots()
 

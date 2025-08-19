@@ -58,8 +58,10 @@ class AB1ConversionStep:
 
             try:
                 # Process AB1 file: convert, filter, and plot using enhanced method
-                raw_record, filtered_record, stats = self.ab1_converter.process_ab1_file_enhanced(
-                    ab1_file, fasta_output, filtered_output, plot_output
+                raw_record, filtered_record, stats = (
+                    self.ab1_converter.process_ab1_file_enhanced(
+                        ab1_file, fasta_output, filtered_output, plot_output
+                    )
                 )
                 processed_files += 1
 

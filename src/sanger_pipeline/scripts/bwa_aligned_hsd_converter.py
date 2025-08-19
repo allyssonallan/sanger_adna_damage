@@ -169,15 +169,24 @@ class BWAAlignedHSDConverter:
                     [
                         "bwa",
                         "mem",
-                        "-T", "10",     # Minimum score threshold (aDNA optimized: 10, default: 30)
-                        "-k", "11",     # Minimum seed length (aDNA optimized: 11, default: 19)
-                        "-W", "20",     # Band width for banded alignment (aDNA optimized: 20, default: 100)
-                        "-r", "2.0",    # Re-seeding trigger (aDNA optimized: 2.0, default: 1.5)
-                        "-A", "1",      # Matching score (aDNA optimized: 1, default: 1)
-                        "-B", "3",      # Mismatch penalty (aDNA optimized: 3, default: 4)
-                        "-O", "4",      # Gap open penalty (aDNA optimized: 4, default: 6)
-                        "-E", "1",      # Gap extension penalty (aDNA optimized: 1, default: 1)
-                        "-L", "0",      # Clipping penalty (aDNA optimized: 0, default: 5)
+                        "-T",
+                        "10",  # Minimum score threshold (aDNA optimized: 10, default: 30)
+                        "-k",
+                        "11",  # Minimum seed length (aDNA optimized: 11, default: 19)
+                        "-W",
+                        "20",  # Band width for banded alignment (aDNA optimized: 20, default: 100)
+                        "-r",
+                        "2.0",  # Re-seeding trigger (aDNA optimized: 2.0, default: 1.5)
+                        "-A",
+                        "1",  # Matching score (aDNA optimized: 1, default: 1)
+                        "-B",
+                        "3",  # Mismatch penalty (aDNA optimized: 3, default: 4)
+                        "-O",
+                        "4",  # Gap open penalty (aDNA optimized: 4, default: 6)
+                        "-E",
+                        "1",  # Gap extension penalty (aDNA optimized: 1, default: 1)
+                        "-L",
+                        "0",  # Clipping penalty (aDNA optimized: 0, default: 5)
                         self.reference_file,
                         temp_fasta,
                     ],

@@ -1,0 +1,33 @@
+[1msrc/sanger_pipeline/cli/commands/analysis_commands.py[m[36m:[m169[36m:[m61[36m:[m [1m[31mE226[m missing whitespace around arithmetic operator
+[1msrc/sanger_pipeline/cli/commands/analysis_commands.py[m[36m:[m169[36m:[m76[36m:[m [1m[31mE226[m missing whitespace around arithmetic operator
+[1msrc/sanger_pipeline/cli/commands/conversion_commands.py[m[36m:[m349[36m:[m5[36m:[m [1m[31mF401[m 'pathlib.Path' imported but unused
+[1msrc/sanger_pipeline/utils/plotting/plot_generator.py[m[36m:[m166[36m:[m86[36m:[m [1m[31mE231[m missing whitespace after ','
+[1mtests/test_damage_analysis.py[m[36m:[m9[36m:[m1[36m:[m [1m[31mE302[m expected 2 blank lines, found 1
+[1mtests/test_damage_analysis.py[m[36m:[m47[36m:[m20[36m:[m [1m[31mE226[m missing whitespace around arithmetic operator
+[1mtests/test_damage_analysis.py[m[36m:[m127[36m:[m1[36m:[m [1m[31mE305[m expected 2 blank lines after class or function definition, found 1
+[1mtests/test_enhanced_ab1_converter.py[m[36m:[m10[36m:[m1[36m:[m [1m[31mE302[m expected 2 blank lines, found 1
+[1mtests/test_enhanced_ab1_converter.py[m[36m:[m44[36m:[m20[36m:[m [1m[31mE226[m missing whitespace around arithmetic operator
+[1mtests/test_enhanced_ab1_converter.py[m[36m:[m67[36m:[m66[36m:[m [1m[31mE226[m missing whitespace around arithmetic operator
+[1mtests/test_enhanced_ab1_converter.py[m[36m:[m67[36m:[m91[36m:[m [1m[31mE226[m missing whitespace around arithmetic operator
+[1mtests/test_enhanced_ab1_converter.py[m[36m:[m93[36m:[m53[36m:[m [1m[31mE226[m missing whitespace around arithmetic operator
+[1mtests/test_enhanced_ab1_converter.py[m[36m:[m93[36m:[m66[36m:[m [1m[31mE226[m missing whitespace around arithmetic operator
+[1mtests/test_enhanced_ab1_converter.py[m[36m:[m107[36m:[m1[36m:[m [1m[31mE305[m expected 2 blank lines after class or function definition, found 1
+[1mtests/test_primer_pairs.py[m[36m:[m15[36m:[m1[36m:[m [1m[31mE302[m expected 2 blank lines, found 1
+[1mtests/test_primer_pairs.py[m[36m:[m36[36m:[m1[36m:[m [1m[31mE302[m expected 2 blank lines, found 1
+[1mtests/test_primer_pairs.py[m[36m:[m40[36m:[m24[36m:[m [1m[31mE128[m continuation line under-indented for visual indent
+[1mtests/test_primer_pairs.py[m[36m:[m42[36m:[m24[36m:[m [1m[31mE128[m continuation line under-indented for visual indent
+[1mtests/test_primer_pairs.py[m[36m:[m44[36m:[m24[36m:[m [1m[31mE128[m continuation line under-indented for visual indent
+[1mtests/test_primer_pairs.py[m[36m:[m46[36m:[m24[36m:[m [1m[31mE128[m continuation line under-indented for visual indent
+[1mtests/test_primer_pairs.py[m[36m:[m48[36m:[m24[36m:[m [1m[31mE128[m continuation line under-indented for visual indent
+[1mtests/test_primer_pairs.py[m[36m:[m50[36m:[m24[36m:[m [1m[31mE128[m continuation line under-indented for visual indent
+[1mtests/test_primer_pairs.py[m[36m:[m52[36m:[m24[36m:[m [1m[31mE128[m continuation line under-indented for visual indent
+[1mtests/test_primer_pairs.py[m[36m:[m54[36m:[m24[36m:[m [1m[31mE128[m continuation line under-indented for visual indent
+[1mtests/test_primer_pairs.py[m[36m:[m147[36m:[m1[36m:[m [1m[31mE305[m expected 2 blank lines after class or function definition, found 1
+[1mtests/test_project_structure.py[m[36m:[m12[36m:[m1[36m:[m [1m[31mE302[m expected 2 blank lines, found 1
+[1mtests/test_project_structure.py[m[36m:[m81[36m:[m1[36m:[m [1m[31mE305[m expected 2 blank lines after class or function definition, found 1
+8     E128 continuation line under-indented for visual indent
+8     E226 missing whitespace around arithmetic operator
+1     E231 missing whitespace after ','
+5     E302 expected 2 blank lines, found 1
+4     E305 expected 2 blank lines after class or function definition, found 1
+1     F401 'pathlib.Path' imported but unused

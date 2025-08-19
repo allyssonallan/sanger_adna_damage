@@ -129,8 +129,9 @@ class HTMLTemplateGenerator:
         css_styles = self._generate_css_styles()
         header_html = self._generate_header_html(logo_html_top, logo_html_bottom)
         footer_html = self._generate_footer_html()
-        
-        return """
+
+        return (
+            """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -139,11 +140,15 @@ class HTMLTemplateGenerator:
     <title>Sanger Pipeline QC Report</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>""" + css_styles + """
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>"""
+            + css_styles
+            + """
 </head>
 <body>
     <div class="main-container">
-""" + header_html + """
+"""
+            + header_html
+            + """
         
         <!-- Main Content -->
         <div class="content-area">
@@ -187,7 +192,9 @@ class HTMLTemplateGenerator:
             </div>
         </div>
         
-""" + footer_html + """
+"""
+            + footer_html
+            + """
     </div>
     
     <!-- Bootstrap JS -->
@@ -200,6 +207,7 @@ class HTMLTemplateGenerator:
 </body>
 </html>
 """
+        )
 
     def _generate_css_styles(self) -> str:
         """Generate CSS styles for the report."""
