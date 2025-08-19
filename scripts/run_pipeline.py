@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Now import our modules  # noqa: E402
 from sanger_pipeline.core.pipeline import SangerPipeline  # noqa: E402
-from sanger_pipeline.core.ab1_converter import AB1Converter  # noqa: E402
+from sanger_pipeline.core.enhanced_ab1_converter_fixed import EnhancedAB1Converter as AB1Converter  # noqa: E402
 from sanger_pipeline.utils.helpers import setup_logging  # noqa: E402
 
 
@@ -128,14 +128,23 @@ def convert_ab1(args):
     # Convert to FASTA
     record = converter.convert_to_fasta(Path(args.ab1_file), output_path)
 
-    # Generate filtered version
+    # Generate filtered/processed version using enhanced processing
     if args.min_quality > 0:
-        filtered_path = output_path.with_suffix("").with_suffix("_filtered.fasta")
-        converter.filter_by_quality(record, filtered_path)
-        print(f"Generated filtered FASTA: {filtered_path}")
+        filtered_path = output_path.with_suffix("").with_suffix("_processed.fasta")
+        plot_path = output_path.with_suffix(".png") if args.generate_plot else None
+        
+        # Use enhanced processing
+        original_record, processed_record, stats = converter.process_ab1_file_enhanced(
+            Path(args.ab1_file), output_path, filtered_path, plot_path
+        )
+        
+        if processed_record is not None:
+            print(f"Generated processed FASTA: {filtered_path}")
+        else:
+            print("Sequence excluded due to insufficient quality")
 
-    # Generate plot if requested
-    if args.generate_plot:
+    # Generate plot if requested and not already generated
+    elif args.generate_plot:
         plot_path = output_path.with_suffix(".png")
         converter.generate_quality_plot(record, plot_path)
         print(f"Generated quality plot: {plot_path}")

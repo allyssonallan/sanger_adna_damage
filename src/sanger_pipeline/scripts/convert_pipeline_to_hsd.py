@@ -8,7 +8,11 @@ Usage:
 
 import sys
 from pathlib import Path
-from ...utils.fasta_to_hsd_converter import FastaToHSDConverter
+
+# Add the parent directory to the path so we can import the converter
+sys.path.append(str(Path(__file__).parent.parent))
+
+from scripts.bwa_aligned_hsd_converter import BWAAlignedHSDConverter
 
 
 def main():
@@ -26,7 +30,7 @@ def main():
     output_file = Path(sys.argv[2])
 
     # Check for reference argument
-    reference_file = None
+    reference_file = "ref/rCRS.fasta"  # Default reference
     if len(sys.argv) > 3 and sys.argv[3] == "--reference":
         if len(sys.argv) > 4:
             reference_file = sys.argv[4]
@@ -39,19 +43,20 @@ def main():
         sys.exit(1)
 
     try:
-        # Initialize converter
-        print("🧬 Initializing FASTA to HSD converter...")
-        converter = FastaToHSDConverter(reference_file)
+        # Initialize converter (use BWA-MEM for proper alignment)
+        print("🧬 Initializing BWA HSD converter...")
+        converter = BWAAlignedHSDConverter()
 
         # Convert pipeline output to HSD
         print("🔄 Converting pipeline output to HSD format...")
-        converter.convert_pipeline_output(pipeline_dir, output_file)
+        sample_variants = converter.process_consensus_directory(str(pipeline_dir))
+        converter.write_hsd_file(sample_variants, str(output_file))
 
         print(f"\n✅ HSD file created: {output_file}")
         print(
-            f"📋 You can now use this file with HaploGrep for haplogroup classification"
+            "📋 You can now use this file with HaploGrep for haplogroup classification"
         )
-        print(f"🌐 HaploGrep web interface: https://haplogrep.i-med.ac.at/")
+        print("🌐 HaploGrep web interface: https://haplogrep.i-med.ac.at/")
 
     except Exception as e:
         print(f"❌ Error during conversion: {e}")

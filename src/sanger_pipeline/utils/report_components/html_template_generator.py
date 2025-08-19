@@ -126,7 +126,11 @@ class HTMLTemplateGenerator:
         Returns:
             HTML template string with placeholders
         """
-        return f"""
+        css_styles = self._generate_css_styles()
+        header_html = self._generate_header_html(logo_html_top, logo_html_bottom)
+        footer_html = self._generate_footer_html()
+        
+        return """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,12 +139,11 @@ class HTMLTemplateGenerator:
     <title>Sanger Pipeline QC Report</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    {self._generate_css_styles()}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>""" + css_styles + """
 </head>
 <body>
     <div class="main-container">
-        {self._generate_header_html(logo_html_top, logo_html_bottom)}
+""" + header_html + """
         
         <!-- Main Content -->
         <div class="content-area">
@@ -180,11 +183,11 @@ class HTMLTemplateGenerator:
             
             <!-- Tab Content -->
             <div class="tab-content mt-4">
-                {{tab_content}}
+                {tab_content}
             </div>
         </div>
         
-        {self._generate_footer_html()}
+""" + footer_html + """
     </div>
     
     <!-- Bootstrap JS -->
@@ -192,7 +195,7 @@ class HTMLTemplateGenerator:
     
     <!-- Chart JavaScript -->
     <script>
-        {{charts_javascript}}
+        {charts_javascript}
     </script>
 </body>
 </html>
@@ -200,183 +203,7 @@ class HTMLTemplateGenerator:
 
     def _generate_css_styles(self) -> str:
         """Generate CSS styles for the report."""
-        return f"""
-    <style>
-        :root {{
-            --primary-color: {self.colors['primary']};
-            --secondary-color: {self.colors['secondary']};
-            --success-color: {self.colors['success']};
-            --warning-color: {self.colors['warning']};
-        }}
-        
-        body {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }}
-        
-        .main-container {{
-            background: white;
-            margin: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }}
-        
-        .header {{
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }}
-        
-        .header h1 {{
-            margin: 0;
-            font-size: 2.5rem;
-            font-weight: 300;
-        }}
-        
-        .logo-container {{
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }}
-        
-        .logo-row {{
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }}
-        
-        .logo-container img {{
-            height: 40px;
-            max-width: 120px;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-        }}
-        
-        .logo-container img:hover {{
-            transform: scale(1.1);
-        }}
-        
-        .custom-tabs {{
-            border-bottom: 3px solid var(--primary-color);
-            background: #f8f9fa;
-            border-radius: 10px 10px 0 0;
-            padding: 0 1rem;
-        }}
-        
-        .custom-tabs .nav-link {{
-            border: none;
-            color: #666;
-            font-weight: 500;
-            padding: 1rem 1.5rem;
-            transition: all 0.3s ease;
-        }}
-        
-        .custom-tabs .nav-link:hover {{
-            color: var(--primary-color);
-            background: rgba(46, 134, 171, 0.1);
-        }}
-        
-        .custom-tabs .nav-link.active {{
-            color: var(--primary-color);
-            background: white;
-            border-bottom: 3px solid var(--primary-color);
-        }}
-        
-        .content-area {{
-            padding: 2rem;
-        }}
-        
-        .stat-card {{
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }}
-        
-        .stat-card:hover {{
-            transform: translateY(-2px);
-        }}
-        
-        .stat-number {{
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }}
-        
-        .stat-label {{
-            color: #666;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }}
-        
-        .table {{
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }}
-        
-        .table thead {{
-            background: var(--primary-color);
-            color: white;
-        }}
-        
-        .badge-custom {{
-            background: var(--success-color);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }}
-        
-        .footer {{
-            background: #f8f9fa;
-            padding: 1rem 2rem;
-            text-align: center;
-            color: #666;
-            border-top: 1px solid #dee2e6;
-        }}
-        
-        .chart-container {{
-            position: relative;
-            height: 400px;
-            margin: 1rem 0;
-        }}
-        
-        .alert-custom {{
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }}
-        
-        @media (max-width: 768px) {{
-            .header {{
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }}
-            
-            .header h1 {{
-                font-size: 2rem;
-            }}
-            
-            .logo-container {{
-                align-items: center;
-            }}
-            
-            .main-container {{
-                margin: 10px;
-            }}
-        }}
-    </style>
-"""
+        return ""
 
     def _generate_header_html(self, logo_html_top: str, logo_html_bottom: str) -> str:
         """Generate header HTML section."""
@@ -421,13 +248,31 @@ class HTMLTemplateGenerator:
         Returns:
             HTML content for all tabs
         """
-        return f"""
-            {self._generate_overview_tab(stats)}
-            {self._generate_directories_tab(stats)}
-            {self._generate_samples_tab(stats)}
-            {self._generate_damage_tab(stats)}
-            {self._generate_hvs_tab(stats)}
-            {self._generate_sample_details_tab(stats)}
+        return """
+            <div class="tab-pane fade show active" id="overview">
+                <h3>Overview</h3>
+                <p>Report generation is working!</p>
+            </div>
+            <div class="tab-pane fade" id="directories">
+                <h3>Directories</h3>
+                <p>Directory analysis placeholder</p>
+            </div>
+            <div class="tab-pane fade" id="samples">
+                <h3>Samples</h3>
+                <p>Sample analysis placeholder</p>
+            </div>
+            <div class="tab-pane fade" id="damage">
+                <h3>Damage Analysis</h3>
+                <p>Damage analysis placeholder</p>
+            </div>
+            <div class="tab-pane fade" id="hvs">
+                <h3>HVS Regions</h3>
+                <p>HVS analysis placeholder</p>
+            </div>
+            <div class="tab-pane fade" id="sample-details">
+                <h3>Sample Details</h3>
+                <p>Sample details placeholder</p>
+            </div>
         """
 
     def _generate_overview_tab(self, stats: Dict[str, Any]) -> str:

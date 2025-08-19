@@ -51,16 +51,18 @@ class HSDConversionStep:
             return {"total_samples": 0, "samples_with_variants": 0, "total_variants": 0}
 
         try:
-            # Initialize regional HSD converter
+            # Initialize improved regional HSD converter
             reference_file = hsd_config.get("reference_file", "ref/rCRS.fasta")
+            use_alignment = hsd_config.get("use_alignment", True)  # Default to alignment mode
 
-            from ...utils.regional_hsd_converter import HybridRegionalHSDConverter
+            from ...utils.regional_hsd_converter import RegionalHSDConverter
 
-            converter = HybridRegionalHSDConverter(reference_file)
+            converter = RegionalHSDConverter(reference_file, use_alignment=use_alignment)
 
             # Process consensus files
             logger.info(
-                f"Processing {len(consensus_files)} consensus files for HSD conversion"
+                f"Processing {len(consensus_files)} consensus files for HSD conversion using "
+                f"{'alignment' if use_alignment else 'direct comparison'} mode"
             )
             sample_variants = converter.process_consensus_directory(str(consensus_dir))
 

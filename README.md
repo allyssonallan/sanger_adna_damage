@@ -37,15 +37,16 @@ A comprehensive pipeline for processing Sanger sequencing data from ancient DNA 
 > **Windows Compatibility Notice**
 > 
 > This pipeline is **not recommended for Windows environments** due to:
+>
 > - Path handling complexities with bioinformatics tools
 > - Shell script dependencies optimized for Unix-like systems
 > - Potential issues with external dependencies (MAFFT, alignment tools)
 > 
 > **Recommended platforms:**
+>
 > - ✅ **Linux** (Ubuntu 20.04+, CentOS 7+)
 > - ✅ **macOS** (10.15+)
 > - 🟡 **WSL2** (Windows Subsystem for Linux) as an alternative for Windows users
-
 > [!IMPORTANT]
 > **🚨 IMPORTANT DISCLAIMER - Tool Purpose & Limitations**
 >
@@ -295,31 +296,8 @@ python enhanced_hsd_converter.py
 # - Diversity analysis report with quality metrics
 ```
 
-**Key Features:**
-
-- ✅ **Regional Processing** - Independent HVS1, HVS2, and HVS3 processing
-- ✅ **Artifact Removal** - Advanced ancient DNA artifact detection and cleaning
-- ✅ **Quality Filtering** - Configurable quality thresholds (70% default)
-- ✅ **Variant Optimization** - Produces optimal variant counts (52.4 avg/sample)
-- ✅ **Diversity Analysis** - Comprehensive genetic diversity assessment
-- ✅ **Sample Prioritization** - Identifies highest-quality samples
-- ✅ **HaploGrep Compatible** - Direct upload to HaploGrep analysis workflow
-
-**Quality Control Metrics:**
-
-- 📊 **Variant Range**: 85-234 variants per sample (mean: 186.8)
-- 🎯 **Sample Retention**: ~60% of highest-quality samples retained
-- 📈 **Genetic Diversity**: Mean sample similarity of 5.96%
-- ⚠️ **Quality Flags**: Automatic detection of low-quality samples
-
 See the [Contributing Guide](https://allysson.dev.br/sanger_adna_damage/contributing.html) for development workflows.
 
 ## 📝 License
 
 MIT License - see [LICENSE](LICENSE) for details.
-
-## 🆘 Support
-
-- 📖 [Documentation](https://allysson.dev.br/sanger_adna_damage/) - Complete guides and references
-- 🐛 [Issues](https://github.com/yourusername/sanger_adna_damage/issues) - Bug reports and feature requests
-- 💬 [Discussions](https://github.com/yourusername/sanger_adna_damage/discussions) - Questions and community

@@ -34,6 +34,24 @@ class DamagePlotGenerator:
         """Create damage plots (backward compatibility method)."""
         return self.generate_all_plots(output_dir)
 
+    def get_dashboard_data(self, base_output_dir: str) -> Dict[str, Any]:
+        """Get dashboard data for damage visualization."""
+        coordinator = DamagePlotCoordinator(base_output_dir)
+        return coordinator.generate_dashboard_plots(base_output_dir)
+
+    def generate_comprehensive_damage_plots(self) -> Dict[str, str]:
+        """Generate comprehensive damage plots for report embedding."""
+        if not self.output_dir:
+            return {}
+        
+        coordinator = DamagePlotCoordinator(self.output_dir)
+        return coordinator.generate_all_plots()
+
+    def generate_individual_sample_plots(self, output_dir: str) -> Dict[str, str]:
+        """Generate individual sample plots."""
+        coordinator = DamagePlotCoordinator(output_dir)
+        return coordinator.generate_all_plots()
+
 
 def create_damage_plots(output_dir: str) -> Dict[str, str]:
     """

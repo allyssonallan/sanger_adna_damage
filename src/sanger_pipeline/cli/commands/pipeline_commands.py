@@ -9,7 +9,7 @@ import click
 from pathlib import Path
 
 from ...core.pipeline import SangerPipeline
-from ...core.ab1_converter import AB1Converter
+from ...core.enhanced_ab1_converter_fixed import EnhancedAB1Converter as AB1Converter
 
 
 @click.group()
@@ -108,9 +108,14 @@ def convert_ab1(
             min_quality=min_quality, min_sequence_length=min_sequence_length
         )
 
-        result = converter.convert_to_fasta(
-            Path(ab1_file), Path(output_fasta), generate_plot=generate_plot
-        )
+        # Convert to FASTA
+        result = converter.convert_to_fasta(Path(ab1_file), Path(output_fasta))
+
+        # Generate plot if requested
+        if generate_plot:
+            plot_path = Path(output_fasta).with_suffix('.png')
+            converter.generate_quality_plot(result, plot_path)
+            click.echo(f"Generated quality plot: {plot_path}")
 
         click.echo(
             f"Conversion completed successfully. Sequence length: {len(result.seq)}"

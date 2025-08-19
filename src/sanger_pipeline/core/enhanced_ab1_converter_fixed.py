@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 
 from ..utils.constants import DEFAULT_MIN_QUALITY, DEFAULT_MIN_SEQUENCE_LENGTH
 from ..utils.helpers import validate_file_exists
+from .primer_config import PrimerConfig
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,65 @@ class EnhancedAB1Converter:
         extremity_analysis_length: int = 30,
         custom_primers_forward: Optional[Dict[str, str]] = None,
         custom_primers_reverse: Optional[Dict[str, str]] = None,
+        primer_config_file: Optional[Path] = None,
     ):
+        """
+        Initialize enhanced AB1 converter.
+
+        Args:
+            min_quality: Minimum Phred quality score for filtering
+            min_sequence_length: Minimum sequence length after filtering
+            enable_primer_removal: Whether to remove primers
+            enable_quality_trimming: Whether to trim low-quality ends
+            quality_window_size: Window size for quality trimming
+            quality_threshold_fraction: Fraction of bases in window that must meet quality threshold
+            adna_damage_mode: Enable ancient DNA damage-specific optimizations
+            adaptive_quality_threshold: Dynamically adjust quality thresholds based on sequence characteristics
+            extremity_analysis_length: Length of sequence extremities to analyze for N abundance
+            custom_primers_forward: Custom forward primers dict {region: sequence}
+            custom_primers_reverse: Custom reverse primers dict {region: sequence}
+            primer_config_file: Path to YAML primer configuration file
+        """
+        self.min_quality = min_quality
+        self.min_sequence_length = min_sequence_length
+        self.enable_primer_removal = enable_primer_removal
+        self.enable_quality_trimming = enable_quality_trimming
+        self.quality_window_size = quality_window_size
+        self.quality_threshold_fraction = quality_threshold_fraction
+        self.adna_damage_mode = adna_damage_mode
+        self.adaptive_quality_threshold = adaptive_quality_threshold
+        self.extremity_analysis_length = extremity_analysis_length
+
+        # Ancient DNA damage-specific parameters
+        if self.adna_damage_mode:
+            self.primer_similarity_threshold = 0.35  # Lower for degraded primers
+            self.iupac_tolerance = True  # Handle ambiguous bases
+            self.damage_position_bias = True  # Consider 5' and 3' damage patterns
+            self.conservative_trimming = True  # More aggressive quality trimming
+        else:
+            self.primer_similarity_threshold = 0.8  # Higher for modern DNA
+            self.iupac_tolerance = False
+            self.damage_position_bias = False
+            self.conservative_trimming = False
+
+        # Initialize primer configuration system
+        self.primer_config = PrimerConfig(primer_config_file)
+        
+        # Add custom primers if provided
+        if custom_primers_forward or custom_primers_reverse:
+            self.primer_config.add_custom_primers(custom_primers_forward, custom_primers_reverse)
+        
+        # Validate primer configuration
+        valid, issues = self.primer_config.validate_primers()
+        if not valid:
+            logger.warning("Primer validation issues found:")
+            for issue in issues:
+                logger.warning(f"  - {issue}")
+        
+        # Get primers for backward compatibility
+        self.primers = self._setup_primer_pairs_from_config()
+        
+        logger.info(f"Initialized with {len(self.primers)} primer pairs from configuration")
         """
         Initialize enhanced AB1 converter.
 
@@ -75,26 +134,44 @@ class EnhancedAB1Converter:
             self.damage_position_bias = False
             self.conservative_trimming = False
 
-        # Default primer sequences for HVS regions (F/R pairs)
-        self.default_primers = {
-            "HVS1": {
-                "forward": "CACCATTAGCACCCAAAGCT",
-                "reverse": "TGATTTCACGGAGGATGGTG",  # Forward direction (will be converted to RC for matching)
-            },
-            "HVS2": {
-                "forward": "GGTCTATCACCCTATTAACCAC",
-                "reverse": "CTGTTAAAAGTGCATACCGCCA",  # Forward direction (will be converted to RC for matching)
-            },
-            "HVS3": {
-                "forward": "CCGCTTCTGGCCACAGCACT",
-                "reverse": "GGTGATGTGAGCCCGTCTAAAC",  # Forward direction (will be converted to RC for matching)
-            },
-        }
+        # Initialize primer configuration system
+        self.primer_config = PrimerConfig(primer_config_file)
+        
+        # Add custom primers if provided
+        if custom_primers_forward or custom_primers_reverse:
+            self.primer_config.add_custom_primers(custom_primers_forward, custom_primers_reverse)
+        
+        # Validate primer configuration
+        valid, issues = self.primer_config.validate_primers()
+        if not valid:
+            logger.warning("Primer validation issues found:")
+            for issue in issues:
+                logger.warning(f"  - {issue}")
+        
+        # Get primers for backward compatibility
+        self.primers = self._setup_primer_pairs_from_config()
+        
+        logger.info(f"Initialized with {len(self.primers)} primer pairs from configuration")
 
-        # Set up primer pairs (combine default with custom if provided)
-        self.primers = self._setup_primer_pairs(
-            custom_primers_forward, custom_primers_reverse
-        )
+    def _setup_primer_pairs_from_config(self) -> Dict[str, Dict[str, str]]:
+        """
+        Set up primer pairs from the primer configuration system.
+        
+        Returns:
+            Dictionary with primer information compatible with existing code
+        """
+        primers = {}
+        
+        for region, primer_data in self.primer_config.get_all_primers().items():
+            primers[region] = {
+                "forward": primer_data.get("forward", ""),
+                "reverse_complement": primer_data.get("reverse_complement", ""),
+                "reverse_original": primer_data.get("reverse", ""),
+                "region": region,
+                "description": primer_data.get("description", f"Primers for {region} region")
+            }
+        
+        return primers
 
     def _reverse_complement(self, sequence: str) -> str:
         """
@@ -126,56 +203,6 @@ class EnhancedAB1Converter:
         return "".join(
             complement_map.get(base.upper(), base) for base in sequence[::-1]
         )
-
-    def _setup_primer_pairs(
-        self,
-        custom_forward: Optional[Dict[str, str]] = None,
-        custom_reverse: Optional[Dict[str, str]] = None,
-    ) -> Dict[str, Dict[str, str]]:
-        """
-        Set up primer pairs with proper forward/reverse complement handling.
-
-        Args:
-            custom_forward: Custom forward primers {region: sequence}
-            custom_reverse: Custom reverse primers {region: sequence}
-
-        Returns:
-            Primer dictionary with forward and reverse_complement for each region
-        """
-        primers = {}
-
-        # Start with default primers
-        for region, primer_pair in self.default_primers.items():
-            if "forward" not in primer_pair or "reverse" not in primer_pair:
-                raise ValueError(
-                    f"Missing forward or reverse primer for region {region}: {primer_pair}"
-                )
-            primers[region] = {
-                "forward": primer_pair["forward"],
-                "reverse_complement": self._reverse_complement(primer_pair["reverse"]),
-                "reverse_original": primer_pair[
-                    "reverse"
-                ],  # Keep original for reference
-            }
-
-        # Add custom forward primers
-        if custom_forward:
-            for region, forward_seq in custom_forward.items():
-                if region not in primers:
-                    primers[region] = {}
-                primers[region]["forward"] = forward_seq.upper()
-
-        # Add custom reverse primers
-        if custom_reverse:
-            for region, reverse_seq in custom_reverse.items():
-                if region not in primers:
-                    primers[region] = {}
-                primers[region]["reverse_complement"] = self._reverse_complement(
-                    reverse_seq.upper()
-                )
-                primers[region]["reverse_original"] = reverse_seq.upper()
-
-        return primers
 
     def detect_primer_orientation(self, sequence: str, region: str) -> Dict[str, Any]:
         """

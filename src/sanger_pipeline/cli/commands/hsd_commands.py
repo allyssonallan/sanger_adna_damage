@@ -25,21 +25,22 @@ def hsd():
 @click.option(
     "--method",
     "-m",
-    default="direct",
-    type=click.Choice(["direct", "aligned"]),
-    help="Conversion method (default: direct)",
+    default="aligned",
+    type=click.Choice(["aligned", "direct"]),
+    help="Conversion method (default: aligned)",
 )
 def hsd_enhanced(consensus_dir, output, method):
-    """Enhanced HSD converter with alignment options."""
+    """Enhanced HSD converter using BWA-MEM alignment (recommended)."""
     try:
-        from ...scripts.enhanced_hsd_converter import EnhancedHSDConverter
+        from ...scripts.bwa_aligned_hsd_converter import BWAAlignedHSDConverter
 
         click.echo(
-            f"🧬 Converting consensus files to HSD format using enhanced converter ({method} method)..."
+            f"🧬 Converting consensus files to HSD format using BWA-MEM alignment..."
         )
 
-        converter = EnhancedHSDConverter()
-        converter.convert_to_hsd(consensus_dir, output, method)
+        converter = BWAAlignedHSDConverter()
+        sample_variants = converter.process_consensus_directory(consensus_dir)
+        converter.write_hsd_file(sample_variants, output)
 
         click.echo(f"✅ Enhanced HSD conversion completed: {output}")
 
@@ -48,7 +49,7 @@ def hsd_enhanced(consensus_dir, output, method):
         raise click.Abort()
 
 
-@hsd.command("regional")
+@hsd.command("bwa")
 @click.option(
     "--consensus-dir",
     "-i",
@@ -56,51 +57,23 @@ def hsd_enhanced(consensus_dir, output, method):
     help="Directory containing consensus FASTA files",
 )
 @click.option("--output", "-o", required=True, help="Output HSD file")
-def hsd_regional(consensus_dir, output):
-    """Regional HSD converter (align each HVS region separately)."""
+def hsd_bwa(consensus_dir, output):
+    """BWA-MEM based HSD converter (recommended - uses proper alignment mapper)."""
     try:
-        from ...scripts.regional_hsd_converter import RegionalHSDConverter
+        from ...scripts.bwa_aligned_hsd_converter import BWAAlignedHSDConverter
 
         click.echo(
-            "🧬 Converting consensus files to HSD format using regional converter..."
+            "🧬 Converting consensus files to HSD format using BWA-MEM alignment..."
         )
 
-        converter = RegionalHSDConverter()
+        converter = BWAAlignedHSDConverter()
         sample_variants = converter.process_consensus_directory(consensus_dir)
         converter.write_hsd_file(sample_variants, output)
 
-        click.echo(f"✅ Regional HSD conversion completed: {output}")
+        click.echo(f"✅ BWA HSD conversion completed: {output}")
 
     except Exception as e:
-        click.echo(f"❌ Error during regional HSD conversion: {e}", err=True)
-        raise click.Abort()
-
-
-@hsd.command("hybrid")
-@click.option(
-    "--consensus-dir",
-    "-i",
-    required=True,
-    help="Directory containing consensus FASTA files",
-)
-@click.option("--output", "-o", required=True, help="Output HSD file")
-def hsd_hybrid(consensus_dir, output):
-    """Hybrid HSD converter (direct comparison without alignment)."""
-    try:
-        from ...scripts.hybrid_regional_hsd_converter import HybridRegionalHSDConverter
-
-        click.echo(
-            "🧬 Converting consensus files to HSD format using hybrid converter..."
-        )
-
-        converter = HybridRegionalHSDConverter()
-        sample_variants = converter.process_consensus_directory(consensus_dir)
-        converter.write_hsd_file(sample_variants, output)
-
-        click.echo(f"✅ Hybrid HSD conversion completed: {output}")
-
-    except Exception as e:
-        click.echo(f"❌ Error during hybrid HSD conversion: {e}", err=True)
+        click.echo(f"❌ Error during BWA HSD conversion: {e}", err=True)
         raise click.Abort()
 
 

@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 from typing import Dict
 
-from ..ab1_converter import AB1Converter
+from ..enhanced_ab1_converter_fixed import EnhancedAB1Converter as AB1Converter
 
 logger = logging.getLogger(__name__)
 
@@ -57,8 +57,8 @@ class AB1ConversionStep:
             plot_output = directories["plots"] / f"{ab1_file.stem}_quality.png"
 
             try:
-                # Process AB1 file: convert, filter, and plot
-                raw_record, filtered_record = self.ab1_converter.process_ab1_file(
+                # Process AB1 file: convert, filter, and plot using enhanced method
+                raw_record, filtered_record, stats = self.ab1_converter.process_ab1_file_enhanced(
                     ab1_file, fasta_output, filtered_output, plot_output
                 )
                 processed_files += 1

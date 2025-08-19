@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Optional
 
-from .ab1_converter import AB1Converter
+from .enhanced_ab1_converter_fixed import EnhancedAB1Converter as AB1Converter
 from .consensus_builder import ConsensusBuilder
 from .adna_damage_analyzer import ADNADamageAnalyzer
 from ..utils.helpers import create_directories, load_config

@@ -7,7 +7,7 @@ Usage:
 """
 
 from pathlib import Path
-from ..core.enhanced_ab1_converter import EnhancedAB1Converter
+from ..core.enhanced_ab1_converter_fixed import EnhancedAB1Converter
 from Bio import SeqIO
 
 

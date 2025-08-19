@@ -1,0 +1,70 @@
+# Primer Configuration for Sanger Pipeline
+# 
+# This file defines primer sequences for HVS (Hypervariable Segment) regions
+# used in ancient DNA analysis. Update these sequences to match your laboratory primers.
+#
+# Format:
+# region_name:
+#   forward: "SEQUENCE"      # 5' to 3' sequence of forward primer
+#   reverse: "SEQUENCE"      # 5' to 3' sequence of reverse primer (NOT reverse complement)
+#   description: "Optional description"
+#   
+# Notes:
+# - All sequences should be in 5' to 3' orientation
+# - Use standard IUPAC nucleotide codes (A, T, G, C, N for ambiguous)
+# - The pipeline will automatically generate reverse complements as needed
+# - Sequences are case-insensitive but will be stored in uppercase
+
+# Human mitochondrial HVS region primers
+# These are example sequences - REPLACE with your actual laboratory primers
+
+HVS1:
+  forward: "CACCATTAGCACCCAAAGCT"              # L15996
+  reverse: "TGATTTCACGGAGGATGGTG"               # H16401 (5' to 3')
+  description: "HVS1 region (16024-16365) - Control region hypervariable segment 1"
+  reference_positions: "L15996-H16401"
+  
+HVS2:
+  forward: "GGTCTATCACCCTATTAACCAC"            # L48
+  reverse: "CTGTTAAAAGTGCATACCGCCA"             # H408 (5' to 3') 
+  description: "HVS2 region (57-372) - Control region hypervariable segment 2"
+  reference_positions: "L48-H408"
+  
+HVS3:
+  forward: "CCGCTTCTGGCCACAGCACT"              # L16209
+  reverse: "GGTGATGTGAGCCCGTCTAAAC"             # H599 (5' to 3')
+  description: "HVS3 region (438-574) - Control region hypervariable segment 3"
+  reference_positions: "L16209-H599"
+
+# Alternative primer sets can be defined here
+# Uncomment and modify as needed for your laboratory protocols
+
+# HVS1_alt:
+#   forward: "ALTERNATIVE_FORWARD_SEQUENCE"
+#   reverse: "ALTERNATIVE_REVERSE_SEQUENCE" 
+#   description: "Alternative HVS1 primers"
+
+# HVS2_alt:
+#   forward: "ALTERNATIVE_FORWARD_SEQUENCE"
+#   reverse: "ALTERNATIVE_REVERSE_SEQUENCE"
+#   description: "Alternative HVS2 primers"
+
+# Custom regions can also be defined
+# CUSTOM_REGION:
+#   forward: "CUSTOM_FORWARD_SEQUENCE"
+#   reverse: "CUSTOM_REVERSE_SEQUENCE"
+#   description: "Custom amplicon region"
+
+# Primer matching parameters (used by the pipeline)
+matching_parameters:
+  similarity_threshold: 0.7        # Minimum similarity for primer detection (0.0-1.0)
+  adna_similarity_threshold: 0.4   # Lower threshold for ancient DNA (degraded primers)
+  max_mismatches: 3               # Maximum allowed mismatches in primer
+  search_window: 50               # Maximum bases to search from sequence ends
+  
+# Quality control parameters
+quality_control:
+  min_primer_length: 15           # Minimum primer length to be considered valid
+  max_primer_length: 35           # Maximum primer length to be considered valid
+  warn_ambiguous_bases: true      # Warn if primers contain ambiguous bases (N, R, Y, etc.)
+  check_primer_dimers: false      # Check for potential primer-dimer formation (future feature)

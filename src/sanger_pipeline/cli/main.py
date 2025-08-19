@@ -10,7 +10,10 @@ from .commands import (
     run_pipeline,
     status,
     convert_ab1,
+    convert_ab1_enhanced,
     convert_to_hsd,
+    validate_primers,
+    generate_primer_config,
     analyze_damage,
     damage_summary,
     hsd,
@@ -31,7 +34,10 @@ def cli(verbose):
 cli.add_command(run_pipeline)
 cli.add_command(status)
 cli.add_command(convert_ab1)
+cli.add_command(convert_ab1_enhanced)
 cli.add_command(convert_to_hsd)
+cli.add_command(validate_primers)
+cli.add_command(generate_primer_config)
 cli.add_command(analyze_damage)
 cli.add_command(damage_summary)
 cli.add_command(generate_report)

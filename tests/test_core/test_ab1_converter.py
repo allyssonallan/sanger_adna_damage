@@ -9,7 +9,7 @@ import sys
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from sanger_pipeline.core.ab1_converter import AB1Converter
+from sanger_pipeline.core.enhanced_ab1_converter_fixed import EnhancedAB1Converter as AB1Converter
 
 
 class TestAB1Converter:

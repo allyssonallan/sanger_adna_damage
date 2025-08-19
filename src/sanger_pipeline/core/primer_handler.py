@@ -7,6 +7,9 @@ removing primers, and handling F/R primer pairs.
 
 import logging
 from typing import Dict, Any, Tuple, Optional
+from pathlib import Path
+
+from .primer_config import PrimerConfig
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +21,7 @@ class PrimerHandler:
         self,
         custom_primers_forward: Optional[Dict[str, str]] = None,
         custom_primers_reverse: Optional[Dict[str, str]] = None,
+        primer_config_file: Optional[Path] = None,
     ):
         """
         Initialize primer handler.
@@ -25,60 +29,32 @@ class PrimerHandler:
         Args:
             custom_primers_forward: Optional custom forward primers
             custom_primers_reverse: Optional custom reverse primers
+            primer_config_file: Optional path to primer configuration file
         """
-        self.primer_pairs = self._setup_primer_pairs(
-            custom_primers_forward, custom_primers_reverse
-        )
+        # Initialize primer configuration system
+        self.primer_config = PrimerConfig(primer_config_file)
+        
+        # Add custom primers if provided
+        if custom_primers_forward or custom_primers_reverse:
+            self.primer_config.add_custom_primers(custom_primers_forward, custom_primers_reverse)
+        
+        # Get primer pairs for compatibility
+        self.primer_pairs = self._convert_config_to_pairs()
+        
+        logger.info(f"Initialized primer handler with {len(self.primer_pairs)} primer pairs")
 
-    def _setup_primer_pairs(
-        self,
-        custom_forward: Optional[Dict[str, str]] = None,
-        custom_reverse: Optional[Dict[str, str]] = None,
-    ) -> Dict[str, Dict[str, str]]:
-        """
-        Set up primer pairs for HVS regions with F/R capability.
-
-        Args:
-            custom_forward: Optional custom forward primers
-            custom_reverse: Optional custom reverse primers
-
-        Returns:
-            Dictionary of primer pairs organized by HVS region
-        """
-        # Default primer sequences (these are examples - should be updated with actual sequences)
-        default_primers = {
-            "HVS1": {
-                "forward": "TTCTTTCATGGGGAAGCAGATTTGGGT",
-                "reverse": "TGATTTTTTGGATGTAGATGAGGAG",
-            },
-            "HVS2": {
-                "forward": "CTGACCGTGAAATCAGCAAAC",
-                "reverse": "AGTGGATGAGGCAGGTTGTT",
-            },
-            "HVS3": {
-                "forward": "CACCATGAATATCATTGGTC",
-                "reverse": "GGTGATGTGAAGGTTGATGT",
-            },
-        }
-
-        # Merge with custom primers if provided
-        primers = default_primers.copy()
-
-        if custom_forward:
-            for region, forward_primer in custom_forward.items():
-                if region in primers:
-                    primers[region]["forward"] = forward_primer
-                else:
-                    primers[region] = {"forward": forward_primer, "reverse": ""}
-
-        if custom_reverse:
-            for region, reverse_primer in custom_reverse.items():
-                if region in primers:
-                    primers[region]["reverse"] = reverse_primer
-                else:
-                    primers[region] = {"forward": "", "reverse": reverse_primer}
-
-        return primers
+    def _convert_config_to_pairs(self) -> Dict[str, Dict[str, str]]:
+        """Convert primer config to the format expected by existing code."""
+        pairs = {}
+        
+        for region, primer_data in self.primer_config.get_all_primers().items():
+            pairs[region] = {
+                "forward": primer_data.get("forward", ""),
+                "reverse": primer_data.get("reverse", ""),
+                "reverse_complement": primer_data.get("reverse_complement", "")
+            }
+        
+        return pairs
 
     def detect_primer_orientation(self, sequence: str, region: str) -> Dict[str, Any]:
         """

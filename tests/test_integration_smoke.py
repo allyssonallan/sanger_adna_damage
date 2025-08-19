@@ -9,7 +9,7 @@ import pytest
 
 from src.sanger_pipeline.core.adna_damage_analyzer import ADNADamageAnalyzer
 from src.sanger_pipeline.core.pipeline import SangerPipeline
-from src.sanger_pipeline.core.ab1_converter import AB1Converter
+from src.sanger_pipeline.core.enhanced_ab1_converter_fixed import EnhancedAB1Converter as AB1Converter
 from src.sanger_pipeline.core.consensus_builder import ConsensusBuilder
 from src.sanger_pipeline.cli.main import cli
 
