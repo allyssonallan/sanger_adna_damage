@@ -59,12 +59,12 @@ HVS3:
 matching_parameters:
   similarity_threshold: 0.7        # Minimum similarity for primer detection (0.0-1.0)
   adna_similarity_threshold: 0.4   # Lower threshold for ancient DNA (degraded primers)
-  max_mismatches: 3               # Maximum allowed mismatches in primer
+  max_mismatches: 2               # Maximum allowed mismatches in primer
   search_window: 50               # Maximum bases to search from sequence ends
   
 # Quality control parameters
 quality_control:
   min_primer_length: 15           # Minimum primer length to be considered valid
-  max_primer_length: 35           # Maximum primer length to be considered valid
+  max_primer_length: 25           # Maximum primer length to be considered valid
   warn_ambiguous_bases: true      # Warn if primers contain ambiguous bases (N, R, Y, etc.)
   check_primer_dimers: false      # Check for potential primer-dimer formation (future feature)
