@@ -921,16 +921,12 @@ class HTMLTemplateGenerator:
             ),
         ]
 
-        summary_rows = "".join(
-            f"""
+        summary_rows = "".join(f"""
                 <tr>
                     <td>{html.escape(label)}</td>
                     <td>{value if value not in (None, "N/A") else "N/A"}</td>
                 </tr>
-            """
-            for label, value in summary_metrics
-            if value not in (None, "N/A")
-        )
+            """ for label, value in summary_metrics if value not in (None, "N/A"))
 
         if not summary_rows:
             summary_table = (

@@ -5,13 +5,15 @@ Test configuration for the Sanger pipeline tests.
 import sys
 import pytest
 from pathlib import Path
-import tempfile
 import shutil
 import os
+from uuid import uuid4
 
 # Make repository root importable so `import src.sanger_pipeline` works
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
+# Keep temporary directories under the repository so cleanup is predictable.
+TEST_TEMP_ROOT = REPO_ROOT / ".pytest_temp"
 
 
 @pytest.fixture(scope="session")
@@ -23,9 +25,13 @@ def repo_root():
 @pytest.fixture
 def temp_dir():
     """Create a temporary directory for tests."""
-    temp_dir = Path(tempfile.mkdtemp())
+    TEST_TEMP_ROOT.mkdir(exist_ok=True)
+    # Use uuid to avoid collisions across parallel or repeated test runs.
+    temp_dir = TEST_TEMP_ROOT / f"pytest_{uuid4().hex}"
+    temp_dir.mkdir()
     yield temp_dir
-    shutil.rmtree(temp_dir)
+    # Ignore cleanup failures to avoid masking the real test result.
+    shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 @pytest.fixture

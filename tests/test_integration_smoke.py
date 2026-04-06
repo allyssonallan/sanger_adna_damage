@@ -1,9 +1,8 @@
 """
-Integration tests that mirror the functionality from run_tests.py
+Integration tests that mirror the functionality from run_tests.py.
 These tests verify the basic functionality of the pipeline components.
 """
 
-import tempfile
 from pathlib import Path
 import pytest
 
@@ -40,21 +39,21 @@ class TestPipelineIntegration:
         assert hasattr(analyzer, 'generate_damage_plots')
 
     @pytest.mark.integration
-    def test_pipeline_integration_with_damage_analyzer(self):
+    def test_pipeline_integration_with_damage_analyzer(self, temp_dir):
         """Test pipeline integration with aDNA analyzer."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            input_dir = Path(temp_dir) / 'input'
-            output_dir = Path(temp_dir) / 'output'
-            input_dir.mkdir()
-            
-            pipeline = SangerPipeline(input_dir, output_dir)
-            
-            # Check pipeline has damage analyzer
-            assert hasattr(pipeline, 'damage_analyzer')
-            assert hasattr(pipeline, '_step_4_adna_damage_analysis')
-            
-            # Check analyzer is correct type
-            assert isinstance(pipeline.damage_analyzer, ADNADamageAnalyzer)
+        # Reuse the shared fixture so all tests follow the same temp-dir policy.
+        input_dir = temp_dir / "input"
+        output_dir = temp_dir / "output"
+        input_dir.mkdir()
+
+        pipeline = SangerPipeline(input_dir, output_dir)
+
+        # Check pipeline has damage analyzer
+        assert hasattr(pipeline, "damage_analyzer")
+        assert hasattr(pipeline, "_step_4_adna_damage_analysis")
+
+        # Check analyzer is correct type
+        assert isinstance(pipeline.damage_analyzer, ADNADamageAnalyzer)
 
     @pytest.mark.unit
     def test_cli_commands_availability(self):

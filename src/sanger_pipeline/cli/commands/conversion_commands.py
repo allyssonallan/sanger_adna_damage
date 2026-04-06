@@ -52,10 +52,8 @@ def convert_ab1(
 
             # The enhanced path writes the raw FASTA, the processed FASTA, and
             # optional plot in one call while also returning processing stats.
-            _, processed_record, stats = (
-                converter.process_ab1_file_enhanced(
-                    ab1_path, output_path, processed_path, plot_path
-                )
+            _, processed_record, stats = converter.process_ab1_file_enhanced(
+                ab1_path, output_path, processed_path, plot_path
             )
 
             if processed_record is not None:

@@ -4,17 +4,37 @@ Simple test runner for the Sanger aDNA pipeline.
 This script provides a quick way to run tests and check basic functionality.
 """
 
-import sys
 import subprocess
+import sys
 from pathlib import Path
+
+UNICODE_FALLBACKS = {
+    "🧪": "[TEST]",
+    "🚀": "[SMOKE]",
+    "⚠️": "[WARN]",
+    "✅": "[OK]",
+    "❌": "[ERROR]",
+    "📦": "[IMPORTS]",
+}
+
+
+def console_print(text=""):
+    """Print safely on consoles without Unicode support."""
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        # Keep logs readable on Windows terminals that cannot render emoji.
+        fallback_text = text
+        for original, replacement in UNICODE_FALLBACKS.items():
+            fallback_text = fallback_text.replace(original, replacement)
+        print(fallback_text)
 
 
 def run_pytest():
     """Run pytest with appropriate arguments."""
-    print("🧪 Running Sanger aDNA Pipeline Tests with pytest")
-    print("=" * 60)
+    console_print("🧪 Running Sanger aDNA Pipeline Tests with pytest")
+    console_print("=" * 60)
 
-    # Run pytest with coverage and verbose output
     cmd = [
         sys.executable,
         "-m",
@@ -30,17 +50,17 @@ def run_pytest():
         result = subprocess.run(cmd, check=False)
         return result.returncode
     except Exception as e:
-        print(f"❌ Failed to run pytest: {e}")
+        console_print(f"❌ Failed to run pytest: {e}")
         return 1
 
 
 def run_smoke_tests():
     """Run only the smoke/integration tests."""
-    print("🚀 Running Smoke Tests")
-    print("=" * 30)
+    console_print("🚀 Running Smoke Tests")
+    console_print("=" * 30)
 
-    # Check if pytest is available
     try:
+        # Probe pytest first so we can fall back to import-level smoke checks.
         subprocess.run(
             [sys.executable, "-m", "pytest", "--version"],
             check=True,
@@ -57,77 +77,74 @@ def run_smoke_tests():
             "pytest",
             "tests/test_integration_smoke.py",
             "-v",
-            "--no-cov",  # Disable coverage for smoke tests
+            "--no-cov",
         ]
         try:
             result = subprocess.run(cmd, check=False)
             return result.returncode
         except Exception as e:
-            print(f"❌ Failed to run smoke tests with pytest: {e}")
+            console_print(f"❌ Failed to run smoke tests with pytest: {e}")
             return 1
-    else:
-        print("⚠️  pytest not available, running basic smoke tests...")
-        return run_basic_smoke_tests()
+
+    console_print("⚠️  pytest not available, running basic smoke tests...")
+    return run_basic_smoke_tests()
 
 
 def run_basic_smoke_tests():
     """Run basic smoke tests without pytest dependency."""
-    print("Running basic import and functionality checks...")
+    console_print("Running basic import and functionality checks...")
 
-    # Add src to path for imports
+    # Allow running this script directly from repo root without editable install.
     sys.path.insert(0, str(Path(__file__).parent / "src"))
 
     tests_passed = 0
     total_tests = 0
 
-    # Test 1: Import check
     total_tests += 1
-    print("1. Testing imports...")
+    console_print("1. Testing imports...")
     try:
+        from sanger_pipeline.cli.main import cli
         from sanger_pipeline.core.adna_damage_analyzer import ADNADamageAnalyzer
         from sanger_pipeline.core.pipeline import SangerPipeline
-        from sanger_pipeline.cli.main import cli
 
-        print("   ✅ All imports successful")
+        console_print("   ✅ All imports successful")
         tests_passed += 1
 
-        # Test 2: Basic initialization
         total_tests += 1
-        print("2. Testing component initialization...")
+        console_print("2. Testing component initialization...")
         analyzer = ADNADamageAnalyzer()
         assert hasattr(analyzer, "analyze_sequence_damage")
-        print("   ✅ Component initialization successful")
+        console_print("   ✅ Component initialization successful")
         tests_passed += 1
 
-        # Test 3: CLI commands check
         total_tests += 1
-        print("3. Testing CLI commands...")
+        console_print("3. Testing CLI commands...")
         command_names = [cmd.name for cmd in cli.commands.values()]
         assert "run" in command_names
         assert "analyze-damage" in command_names
-        print("   ✅ CLI commands available")
+        console_print("   ✅ CLI commands available")
         tests_passed += 1
 
     except Exception as e:
-        print(f"   ❌ Test failed: {e}")
+        console_print(f"   ❌ Test failed: {e}")
 
-    print(f"\nResults: {tests_passed}/{total_tests} basic smoke tests passed")
+    console_print(f"\nResults: {tests_passed}/{total_tests} basic smoke tests passed")
     return 0 if tests_passed == total_tests else 1
 
 
 def check_imports():
     """Quick import check without pytest."""
-    print("📦 Checking imports...")
+    console_print("📦 Checking imports...")
 
     try:
+        from sanger_pipeline.cli.main import cli
         from sanger_pipeline.core.adna_damage_analyzer import ADNADamageAnalyzer
         from sanger_pipeline.core.pipeline import SangerPipeline
-        from sanger_pipeline.cli.main import cli
 
-        print("✅ All imports successful")
+        console_print("✅ All imports successful")
         return True
     except Exception as e:
-        print(f"❌ Import failed: {e}")
+        console_print(f"❌ Import failed: {e}")
         return False
 
 
@@ -148,10 +165,9 @@ def main():
     if args.mode == "imports":
         success = check_imports()
         return 0 if success else 1
-    elif args.mode == "smoke":
+    if args.mode == "smoke":
         return run_smoke_tests()
-    else:
-        return run_pytest()
+    return run_pytest()
 
 
 if __name__ == "__main__":

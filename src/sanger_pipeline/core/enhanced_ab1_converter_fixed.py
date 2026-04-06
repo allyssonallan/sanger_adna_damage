@@ -7,18 +7,16 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
-from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
-import matplotlib
-
-# Use a non-interactive backend so PNG generation works in headless or
-# minimally configured Windows environments without Tcl/Tk.
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
 from ..utils.constants import DEFAULT_MIN_QUALITY, DEFAULT_MIN_SEQUENCE_LENGTH
-from ..utils.helpers import validate_file_exists
+from .ab1_processing import (
+    AB1ConversionRequest,
+    AB1IO,
+    QualityPlotRequest,
+    QualityPlotter,
+)
 from .primer_config import PrimerConfig
 
 logger = logging.getLogger(__name__)
@@ -105,6 +103,8 @@ class EnhancedAB1Converter:
         logger.info(
             f"Initialized with {len(self.primers)} primer pairs from configuration"
         )
+        self.ab1_io = AB1IO()
+        self.quality_plotter = QualityPlotter(min_quality=self.min_quality)
 
     def _setup_primer_pairs_from_config(self) -> Dict[str, Dict[str, str]]:
         """
@@ -725,8 +725,7 @@ class EnhancedAB1Converter:
         )
 
         # Write processed FASTA
-        processed_output.parent.mkdir(parents=True, exist_ok=True)
-        SeqIO.write(processed_record, processed_output, "fasta")
+        self.ab1_io.write_fasta(processed_record, processed_output)
         logger.info(
             f"Wrote processed FASTA: {processed_output} ({valid_bases} valid bases)"
         )
@@ -740,20 +739,8 @@ class EnhancedAB1Converter:
 
     def convert_to_fasta(self, ab1_file: Path, output_file: Path) -> SeqRecord:
         """Convert AB1 file to FASTA format."""
-        validate_file_exists(ab1_file, "AB1 file")
-
-        try:
-            record = SeqIO.read(ab1_file, "abi")
-            logger.info(f"Read AB1 file: {ab1_file}")
-        except Exception as e:
-            raise ValueError(f"Failed to parse AB1 file {ab1_file}: {e}")
-
-        record.id = output_file.name
-        record.description = ""
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        SeqIO.write(record, output_file, "fasta")
-        logger.info(f"Wrote FASTA file: {output_file}")
-        return record
+        request = AB1ConversionRequest(ab1_file=ab1_file, output_file=output_file)
+        return self.ab1_io.convert_to_fasta(request)
 
     def detect_hvs_region(self, sequence: str) -> Optional[str]:
         """Detect which HVS region based on primer presence."""
@@ -853,27 +840,5 @@ class EnhancedAB1Converter:
         figure_size: Tuple[int, int] = (12, 4),
     ) -> None:
         """Generate quality score plot for the sequence."""
-        if "phred_quality" not in record.letter_annotations:
-            logger.warning("Record does not contain phred_quality annotations")
-            return
-
-        qualities = record.letter_annotations["phred_quality"]
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-
-        plt.figure(figsize=figure_size)
-        plt.plot(qualities, marker=".", linestyle="-", markersize=1)
-        plt.axhline(
-            self.min_quality,
-            color="red",
-            linestyle="--",
-            label=f"Quality threshold ({self.min_quality})",
-        )
-        plt.title(f"Quality scores for {record.id}")
-        plt.xlabel("Base position")
-        plt.ylabel("Phred Quality")
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
-        plt.savefig(output_file, dpi=300, bbox_inches="tight")
-        plt.close()
-        logger.info(f"Generated quality plot: {output_file}")
+        request = QualityPlotRequest(output_file=output_file, figure_size=figure_size)
+        self.quality_plotter.generate(record, request)

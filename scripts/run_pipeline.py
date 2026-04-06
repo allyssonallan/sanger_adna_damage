@@ -123,31 +123,33 @@ def convert_ab1(args):
     print(f"Converting {args.ab1_file} to {args.output_fasta}")
 
     converter = AB1Converter(min_quality=args.min_quality)
+    # Normalize CLI strings once and reuse the same canonical paths.
+    ab1_path = Path(args.ab1_file)
     output_path = Path(args.output_fasta)
+    plot_path = output_path.with_suffix(".png") if args.generate_plot else None
 
-    # Convert to FASTA
-    record = converter.convert_to_fasta(Path(args.ab1_file), output_path)
-
-    # Generate filtered/processed version using enhanced processing
     if args.min_quality > 0:
-        filtered_path = output_path.with_suffix("").with_suffix("_processed.fasta")
-        plot_path = output_path.with_suffix(".png") if args.generate_plot else None
-        
-        # Use enhanced processing
-        original_record, processed_record, stats = converter.process_ab1_file_enhanced(
-            Path(args.ab1_file), output_path, filtered_path, plot_path
+        # Keep raw and processed outputs side-by-side for validation/debugging.
+        filtered_path = output_path.with_name(
+            f"{output_path.stem}_processed{output_path.suffix}"
         )
-        
+
+        # Enhanced processing writes raw/processed outputs and returns stats.
+        _, processed_record, stats = converter.process_ab1_file_enhanced(
+            ab1_path, output_path, filtered_path, plot_path
+        )
+
         if processed_record is not None:
             print(f"Generated processed FASTA: {filtered_path}")
         else:
             print("Sequence excluded due to insufficient quality")
 
-    # Generate plot if requested and not already generated
-    elif args.generate_plot:
-        plot_path = output_path.with_suffix(".png")
-        converter.generate_quality_plot(record, plot_path)
-        print(f"Generated quality plot: {plot_path}")
+    else:
+        # No filtering mode: plain AB1->FASTA conversion plus optional plot.
+        record = converter.convert_to_fasta(ab1_path, output_path)
+        if args.generate_plot:
+            converter.generate_quality_plot(record, plot_path)
+            print(f"Generated quality plot: {plot_path}")
 
     print("Conversion completed successfully")
     return 0

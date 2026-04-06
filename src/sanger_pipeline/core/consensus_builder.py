@@ -14,7 +14,6 @@ from Bio.SeqRecord import SeqRecord
 
 from ..utils.helpers import validate_file_exists
 
-
 logger = logging.getLogger(__name__)
 
 

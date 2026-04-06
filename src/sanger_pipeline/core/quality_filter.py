@@ -7,7 +7,6 @@ from typing import List, Optional
 
 from ..utils.constants import DEFAULT_MIN_QUALITY, DEFAULT_MIN_SEQUENCE_LENGTH
 
-
 logger = logging.getLogger(__name__)
 
 
